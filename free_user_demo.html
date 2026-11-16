@@ -1,0 +1,2464 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prerit Khandelwal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#09090b;color:#fafafa;font-family:'Inter',sans-serif;font-size:13px;font-variant-numeric:tabular-nums;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:#10b981;text-decoration:none;transition:color 0.2s}
+a:hover{color:#34d399}
+.hero{background:#111114;border-bottom:1px solid #27272a;padding:16px 40px;display:flex;flex-direction:column;gap:16px}
+.hero-identity-row{display:flex;align-items:center;gap:20px;width:100%}
+.avatar{width:56px;height:56px;border-radius:50%;border:2px solid #10b981;flex-shrink:0;object-fit:cover;object-position:center 12%}
+.profile-info{flex:1;min-width:0}
+.name{font-size:22px;font-weight:800;line-height:1.1;letter-spacing:-0.02em;white-space:nowrap;color:#fff}
+.name span{color:#10b981}
+.sub{font-size:11px;color:#a1a1aa;letter-spacing:0.02em;margin:3px 0 4px;font-weight:500}
+.headline{font-size:12px;color:#71717a;line-height:1.3;max-width:850px}
+.hero-recording-controls{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+.btn-record{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;padding:6px 14px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.1s ease-out;user-select:none}
+.btn-record:hover{background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ff5f5f}
+.btn-record:active{transform:translateY(1px);background:rgba(239,68,68,0.25)}
+.record-dot{width:6px;height:6px;background:#ef4444;border-radius:50%;box-shadow:0 0 8px rgba(239,68,68,0.6);animation:record-pulse 1.5s ease-in-out infinite}
+@keyframes record-pulse{0%{transform:scale(1);opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,0.4)}70%{transform:scale(1.1);opacity:0.8;box-shadow:0 0 0 6px rgba(239,68,68,0)}100%{transform:scale(1);opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+
+/* BATTLECARD GRID STYLES */
+.battlecard-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:14px;width:100%}
+.bc-card{background:#09090b;border:1px solid #27272a;border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.bc-card.synced-flash{animation:bcFlash 1.2s ease-out}
+@keyframes bcFlash{0%{box-shadow:0 0 0 2px #10b981, 0 0 20px rgba(16,185,129,0.4);border-color:#10b981}100%{box-shadow:none;border-color:#27272a}}
+.bc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.bc-title{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:800;color:#71717a;letter-spacing:0.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.bc-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+.bc-dot.g{background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.5)}
+.bc-dot.y{background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,0.5)}
+.bc-dot.b{background:#818cf8;box-shadow:0 0 6px rgba(129,140,248,0.5)}
+.bc-badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:0.5px}
+.bc-badge.g{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#10b981}
+.bc-badge.y{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#f59e0b}
+.bc-badge.b{background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.25);color:#818cf8}
+.bc-main-val{font-size:14.5px;font-weight:800;color:#fff;line-height:1.35}
+.bc-sub-val{font-size:12.5px;color:#a1a1aa;line-height:1.55}
+.bc-action-btn{background:none;border:1px dashed #3f3f46;color:#71717a;font-size:9px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all 0.15s}
+.bc-action-btn:hover{color:#10b981;border-color:#10b981;background:rgba(16,185,129,0.05)}
+.bc-input{background:#000;border:1px solid #27272a;border-radius:4px;color:#fff;font-size:11px;font-family:'JetBrains Mono',monospace;padding:5px 8px;flex:1;outline:none;transition:border-color 0.2s}
+.bc-input:focus{border-color:#10b981}
+.bc-sync-btn{background:#10b981;color:#000;border:none;border-radius:4px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:800;padding:5px 12px;cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.bc-sync-btn:hover{background:#34d399}
+.email-pred-chip{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);border:1px solid #27272a;border-radius:3px;padding:4px 8px;font-size:10px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.15s;color:#a1a1aa}
+.email-pred-chip:hover{border-color:#3f3f46;background:rgba(255,255,255,0.05)}
+.email-pred-chip.active{border-color:#10b981;background:rgba(16,185,129,0.05);color:#10b981}
+.pred-conf{font-size:8.5px;color:#71717a}
+
+.avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.avatar-wrapper .avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 2px solid #27272a;
+  object-fit: cover;
+  object-position: center 12%;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+.avatar-wrapper.recording .avatar {
+  border-color: #ef4444;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+}
+.avatar-wrapper.paused .avatar {
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+.avatar-rec-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  pointer-events: none;
+  z-index: 0;
+  transition: all 0.3s ease;
+}
+.avatar-wrapper.recording .avatar-rec-ring {
+  border-color: rgba(239, 68, 68, 0.5);
+  animation: pulse-avatar-ring 2s infinite ease-in-out;
+}
+.avatar-wrapper.paused .avatar-rec-ring {
+  border-color: rgba(245, 158, 11, 0.4);
+  animation: none;
+}
+@keyframes pulse-avatar-ring {
+  0% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.12); opacity: 0.15; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+.avatar-rec-badge {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #27272a;
+  color: #a1a1aa;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.5px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  z-index: 2;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+.avatar-wrapper.recording .avatar-rec-badge {
+  background: #ef4444;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.avatar-wrapper.paused .avatar-rec-badge {
+  background: #f59e0b;
+  color: #000;
+  border-color: rgba(245, 158, 11, 0.5);
+}
+.avatar-rec-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  display: inline-block;
+}
+.avatar-wrapper.recording .avatar-rec-dot {
+  animation: pulse-red 1.5s infinite;
+}
+
+@media (max-width: 1200px) {
+  .battlecard-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .hero-identity-row { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .hero-recording-controls { margin-left: 0; width: 100%; justify-content: flex-start; }
+}
+.tabs{background:#18181b;border-bottom:1px solid #27272a;display:flex;padding:0 40px}
+.tab{padding:14px 20px;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#71717a;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;transition:all 0.2s}
+.tab:hover{color:#fafafa}.tab.active{color:#10b981;border-bottom-color:#10b981}
+.body{padding:32px 40px;max-width:1400px}
+.panel{display:none}.panel.active{display:block}
+.sec{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#7ecba1;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e1e1e}
+.tl{padding-left:20px;border-left:1px solid #222}
+.tj{margin-bottom:24px;padding-left:16px;position:relative}
+.tj::before{content:'';position:absolute;left:-20px;top:6px;width:7px;height:7px;border-radius:50%;background:#333;border:1px solid #444}
+.tj.act::before{background:#7ecba1;box-shadow:0 0 8px rgba(126,203,161,0.4)}
+.tj-top{display:flex;justify-content:space-between;align-items:flex-start}
+.co{font-size:15px;font-weight:700}
+.ro{font-size:12px;color:#a1a1aa;margin:3px 0}
+.mt{font-family:'JetBrains Mono',monospace;font-size:10px;color:#71717a;margin-bottom:6px}
+.dur{font-family:'JetBrains Mono',monospace;font-size:10px;background:#181818;border:1px solid #222;padding:2px 8px;border-radius:2px;white-space:nowrap}
+.abadge{font-family:'JetBrains Mono',monospace;font-size:9px;color:#4caf7a;background:rgba(76,175,122,.1);border:1px solid rgba(76,175,122,.2);padding:2px 8px;border-radius:2px;display:block;margin-top:4px;text-align:center}
+.desc{font-size:12px;color:#a1a1aa;line-height:1.6;border-left:2px solid #1e1e1e;padding-left:10px;margin-top:6px}
+.ov2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.oc{background:#161616;border:1px solid #1e1e1e;border-radius:3px;padding:12px}
+.oc.full{grid-column:1/-1}
+.ot{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#10b981;margin-bottom:8px;opacity:0.9}
+.ob{font-size:13px;color:#a1a1aa;line-height:1.6;font-weight:450;font-family:'Inter',sans-serif}
+.yc-badge { background:#161616; border:1px solid #27272a; color:#f59e0b; font-family:'JetBrains Mono',monospace; font-size:10px; padding:4px 8px; border-radius:2px; font-weight:700 }
+
+/* RECORDING STATE ANIMATIONS */
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.recording-active .record-dot {
+  background: #ef4444 !important;
+  animation: pulse-red 2s infinite;
+}
+.recording-active .btn-record {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #ef4444 !important;
+}
+
+/* COMPANY DETAILS REDESIGN */
+#company-details { display: none; flex-direction: column; font-family: 'Inter', sans-serif; background: #0a0a0a; color: #f1f5f9; }
+#company-details.active { display: flex; }
+.ci-card { background: #0f0f11; border: 1px solid #1e1e24; border-radius: 6px; }
+.ci-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.ci-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.ci-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.ci-val { font-size: 14px; font-weight: 600; color: #fff; }
+.ci-sub { font-size: 10px; color: #71717a; font-weight: 400; text-transform: uppercase; margin-left: 4px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot.g { background: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.4); }
+.dot.y { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,0.4); }
+.dot.r { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.4); }
+.ci-tag { display: inline-block; font-size: 9px; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.03); border: 1px solid #27272a; color: #a1a1aa; font-weight: 600; }
+.ci-tag.g-text { border-color: rgba(16,185,129,0.2); color: #10b981; background: rgba(16,185,129,0.05); }
+.ci-tag.y-text { border-color: rgba(245,158,11,0.2); color: #f59e0b; background: rgba(245,158,11,0.05); }
+.ci-tag.r-text { border-color: rgba(239,68,68,0.2); color: #ef4444; background: rgba(239,68,68,0.05); }
+.ac{background:#161616;border:1px solid #1e1e1e;border-radius:3px;padding:14px;margin-bottom:10px;display:flex;gap:12px}
+.pill{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:2px;flex-shrink:0;margin-top:2px;height:fit-content}
+.p-share{background:rgba(126,203,161,.1);color:#7ecba1;border:1px solid rgba(126,203,161,.2)}
+.p-repost{background:rgba(92,158,224,.1);color:#5c9de0;border:1px solid rgba(92,158,224,.2)}
+.p-like{background:rgba(76,175,122,.1);color:#4caf7a;border:1px solid rgba(76,175,122,.2)}
+.p-comment{background:rgba(224,92,92,.1);color:#e05c5c;border:1px solid rgba(224,92,92,.2)}
+.p-react{background:rgba(150,100,200,.1);color:#b090e0;border:1px solid rgba(150,100,200,.2)}
+.ac-txt{font-size:12px;color:#a1a1aa;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ac-lnk{font-family:'JetBrains Mono',monospace;font-size:10px;color:#71717a;margin-top:4px;display:block}
+.ac-lnk:hover{color:#7ecba1}
+.cg{background:#161616;border:1px solid #1e1e1e;border-radius:3px;padding:14px;margin-bottom:8px}
+.cn{font-size:13px;font-weight:700;margin-bottom:2px}
+.cm{font-size:11px;color:#71717a;font-family:'JetBrains Mono',monospace}
+.cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cs-item{background:#111;border:1px solid #1e1e1e;border-radius:3px;padding:10px 12px}
+.cs-title{font-size:12px;color:#a1a1aa;line-height:1.4}
+.cs-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(126,203,161,.08);border:1px solid rgba(126,203,161,.15);color:#7ecba1;padding:2px 6px;border-radius:2px;margin-top:4px}
+.cs-del{opacity:0.35}
+
+/* P3 SUMMARY PANEL */
+@keyframes summaryFadeIn { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+@keyframes shimmer { 0% { background-position: -400px 0 } 100% { background-position: 400px 0 } }
+.summary-loading-line { height:14px; border-radius:3px; background:linear-gradient(90deg,#1a1a1a 25%,#27272a 50%,#1a1a1a 75%); background-size:400px 100%; animation:shimmer 1.5s infinite linear; margin-bottom:10px }
+.summary-loading-line:last-child { width:60% }
+.summary-section { background:#111114; border:1px solid #27272a; border-radius:6px; padding:14px 20px; margin-bottom:10px; animation:summaryFadeIn 0.5s ease both }
+.summary-section-title { font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; color:#10b981; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:8px }
+.summary-section-title .ss-dot { width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.5) }
+.summary-editable { background:#0d0d0f; border:1px dashed #3f3f46; border-radius:4px; padding:12px 14px; color:#e4e4e7; font-size:13px; line-height:1.7; min-height:120px; outline:none; transition:border-color 0.2s }
+.summary-editable:focus { border-color:#10b981; border-style:solid }
+.summary-editable.approved { border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.02); pointer-events:none }
+.summary-meta { display:flex; gap:12px; margin-bottom:10px; flex-wrap:wrap }
+.summary-meta-item { font-size:9px; color:#71717a; font-family:'JetBrains Mono',monospace }
+.summary-meta-item strong { color:#a1a1aa }
+.summary-actions { display:flex; gap:10px; margin-top:10px; align-items:center }
+.btn-approve { display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); color:#10b981; padding:8px 18px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; transition:all 0.2s }
+.btn-approve:hover { background:rgba(16,185,129,0.2); border-color:rgba(16,185,129,0.5) }
+.btn-approve.done { background:rgba(16,185,129,0.15); color:#10b981; pointer-events:none }
+.btn-edit { display:none; align-items:center; gap:6px; background:rgba(255,255,255,0.05); border:1px solid #27272a; color:#71717a; padding:8px 18px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; transition:all 0.2s }
+.btn-edit:hover { background:rgba(255,255,255,0.08); color:#e4e4e7; border-color:#3f3f46 }
+.btn-send { display:inline-flex; align-items:center; gap:6px; background:#10b981; border:none; color:#000; padding:8px 18px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; transition:all 0.2s }
+.btn-send:hover { background:#34d399; transform:translateY(-1px) }
+.btn-send:disabled { opacity:0.3; pointer-events:none; transform:none }
+.btn-send.sent { background:rgba(16,185,129,0.15); color:#10b981; pointer-events:none }
+.email-field { display:flex; align-items:center; gap:8px; margin-bottom:6px }
+.email-field-label { font-family:'JetBrains Mono',monospace; font-size:9px; color:#71717a; letter-spacing:0.1em; text-transform:uppercase; width:60px; flex-shrink:0 }
+.email-field-input { flex:1; background:#0d0d0f; border:1px solid #27272a; color:#e4e4e7; padding:0 12px; height:32px; border-radius:4px; font-family:'Inter',sans-serif; font-size:12px; transition:border-color 0.2s }
+.email-field-input:focus { outline:none; border-color:#10b981 }
+.email-chip { display:inline-flex; align-items:center; gap:4px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15); color:#10b981; padding:3px 8px; border-radius:3px; font-size:10px; font-family:'JetBrains Mono',monospace }
+.email-chip-remove { cursor:pointer; color:#71717a; font-size:12px; line-height:1 }
+.email-chip-remove:hover { color:#ef4444 }
+.email-body-preview { background:#0d0d0f; border:1px solid #27272a; border-radius:4px; padding:10px 14px; color:#a1a1aa; font-size:11px; line-height:1.6; max-height:140px; overflow-y:auto }
+.disabled-overlay { opacity:0.35; pointer-events:none; filter:grayscale(0.5) }
+.cal-row { display:flex; gap:10px; margin-bottom:6px }
+.cal-row .email-field { flex:1; margin-bottom:0 }
+
+/* SUMMARY BULLET ITEMS */
+.s-item { color:#d4d4d8; font-size:11.5px; line-height:1.5; padding:4px 24px 4px 14px; position:relative; border-radius:3px; border:1px solid transparent; transition:border-color 0.15s, background 0.15s; outline:none; cursor:text }
+.s-item::before { content:'•'; position:absolute; left:2px; color:#3f3f46 }
+.s-item:focus { border-color:#27272a; background:rgba(255,255,255,0.02) }
+.s-item-commit { color:#e4e4e7; font-weight:500 }
+.s-item-commit::before { color:#10b981 }
+.s-item-q { color:#d4d4d8 }
+.s-item-q::before { color:#ef4444 }
+.s-item-pain { color:#fff; font-weight:600; background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.12); border-radius:4px; padding:5px 24px 5px 14px }
+.s-item-pain::before { color:#ef4444; font-size:13px }
+.s-del { position:absolute; right:6px; top:50%; transform:translateY(-50%); color:#3f3f46; font-size:13px; cursor:pointer; opacity:0; transition:opacity 0.15s; line-height:1; font-style:normal; user-select:none }
+.s-item:hover .s-del { opacity:1 }
+.s-del:hover { color:#ef4444 }
+.s-add { display:block; width:100%; margin-top:6px; background:none; border:1px dashed #27272a; color:#52525b; padding:3px; border-radius:3px; font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.05em; cursor:pointer; transition:all 0.15s; text-align:center }
+.s-add:hover { border-color:#10b981; color:#10b981; background:rgba(16,185,129,0.03) }
+.s-badge-cal { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:8px; background:rgba(129,140,248,0.1); border:1px solid rgba(129,140,248,0.2); color:#818cf8; padding:1px 6px; border-radius:2px; margin-left:6px; vertical-align:middle; letter-spacing:0.02em; pointer-events:none }
+
+@media (max-width: 1024px) {
+  .hero { flex-direction: column; align-items: flex-start; padding: 32px 40px; gap: 32px; }
+  .profile-info { width: 100% !important; max-width: 100% !important; }
+  .name { white-space: normal !important; }
+  .rel-box, .profile-actions { margin-left: 0 !important; align-self: stretch; align-items: flex-start; }
+  .rel-box { flex-direction: row; flex-wrap: wrap; }
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 24px 20px; }
+  .avatar { width: 60px; height: 60px; }
+  .name { font-size: 24px; }
+  .rel-box { flex-direction: column; gap: 16px; }
+  .rel-box > div { border-left: none !important; padding-left: 0 !important; border-top: 1px solid #222; padding-top: 12px; }
+  .input-group input { width: 100%; }
+  .tabs { padding: 0 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab { padding: 12px 14px; font-size: 10px; }
+  .body { padding: 20px; }
+  .ov2 { grid-template-columns: 1fr; }
+  .cs-grid { grid-template-columns: 1fr; }
+}
+
+/* Live Item Animation */
+@keyframes itemAppear {
+  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.new-item { animation: itemAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.streaming-text {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 1s steps(40, end);
+}
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+
+/* P0 Capture Screen Styles */
+.capture-container {
+  position: fixed;
+  inset: 0;
+  background: #09090b;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.capture-card {
+  width: 100%;
+  max-width: 540px;
+  background: #0d0d0f;
+  border: 1px solid #27272a;
+  border-radius: 24px;
+  padding: 48px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  animation: captureFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes captureFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.capture-btn {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #a1a1aa;
+  min-height: 100px;
+}
+.capture-btn:hover {
+  background: rgba(16,185,129,0.04);
+  border-color: #10b981;
+  color: #fff;
+  transform: translateY(-2px);
+}
+.capture-btn svg { width: 24px; height: 24px; margin-bottom: 0px; }
+.capture-btn span { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
+
+.capture-input {
+  width: 100%;
+  background: #09090b;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  padding: 16px 20px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.capture-input::placeholder {
+  color: #71717a;
+  opacity: 1;
+}
+.capture-input:focus { border-color: #10b981; }
+
+.scanning-overlay {
+  position: absolute;
+  inset: 0;
+  background: #0d0d0f;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  z-index: 10;
+}
+.scanning-bar {
+  width: 200px;
+  height: 2px;
+  background: #10b981;
+  box-shadow: 0 0 20px #10b981;
+  position: relative;
+  overflow: hidden;
+}
+.scanning-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  animation: scanAnim 1.5s infinite;
+}
+@keyframes scanAnim {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+</style></head><body>
+
+<!-- P0: VISITOR CAPTURE SCREEN -->
+<div id="capture-screen" class="capture-container">
+  <div class="capture-card" style="position:relative; max-width:900px; padding: 48px;">
+    <!-- Brand -->
+    <div style="text-align:center; margin-bottom:48px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; color:#10b981; letter-spacing:0.4em; text-transform:uppercase; padding-left:0.4em;">Pravah AI</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1.2fr 1.8fr; gap:32px;">
+      <!-- AI SCAN FLOW -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="capture-btn" onclick="startIdentification('AI Scan')" style="flex:1; gap:24px; padding:48px 32px; border-width:2px; background:rgba(16,185,129,0.02)">
+          <div style="position:relative;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+            <div style="position:absolute; inset:0; background:#10b981; filter:blur(24px); opacity:0.1"></div>
+          </div>
+          <div style="text-align:center">
+            <span style="font-size:24px; font-weight:600; color:#fff; display:block; margin-bottom:8px; letter-spacing:0.1em; text-transform:uppercase;">AI Scan</span>
+            <span style="font-size:13px; color:#71717a; font-weight:400; text-transform:none; font-family:'JetBrains Mono', monospace;">QR Code · Card · Notes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANUAL ENTRY FLOW -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="background:rgba(255,255,255,0.02); border:1px solid #27272a; border-radius:16px; padding:32px; flex:1; display:flex; flex-direction:column; justify-content:center">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div>
+              <label style="font-size:11px; color:#71717a; text-transform:uppercase; margin-bottom:8px; display:block; font-family:'JetBrains Mono',monospace">Name *</label>
+              <input type="text" id="manual-name" class="capture-input" placeholder="e.g. Prerit K" spellcheck="false">
+            </div>
+            <div>
+              <label style="font-size:11px; color:#71717a; text-transform:uppercase; margin-bottom:8px; display:block; font-family:'JetBrains Mono',monospace">Company *</label>
+              <input type="text" id="manual-company" class="capture-input" placeholder="Organization" spellcheck="false">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div>
+              <label style="font-size:11px; color:#71717a; text-transform:uppercase; margin-bottom:8px; display:block; font-family:'JetBrains Mono',monospace">Company Domain</label>
+              <input type="text" id="manual-domain" class="capture-input" placeholder="Optional" spellcheck="false">
+            </div>
+            <div>
+              <label style="font-size:11px; color:#71717a; text-transform:uppercase; margin-bottom:8px; display:block; font-family:'JetBrains Mono',monospace">Colleagues / Attendees</label>
+              <input type="text" id="manual-attendees" class="capture-input" placeholder="e.g. +1 colleague or Murali (CISO)" spellcheck="false">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:24px;">
+            <div>
+              <label style="font-size:11px; color:#71717a; text-transform:uppercase; margin-bottom:8px; display:block; font-family:'JetBrains Mono',monospace">Email ID</label>
+              <input type="email" id="manual-email" class="capture-input" placeholder="Optional" spellcheck="false">
+            </div>
+            <div>
+              <label style="font-size:11px; color:#71717a; text-transform:uppercase; margin-bottom:8px; display:block; font-family:'JetBrains Mono',monospace">Phone</label>
+              <input type="tel" id="manual-phone" class="capture-input" placeholder="Optional" spellcheck="false">
+            </div>
+          </div>
+          <button onclick="handleManualSubmit()" style="width:100%; background:#fff; color:#000; border:none; border-radius:8px; padding:16px; font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:800; letter-spacing:0.1em; cursor:pointer; transition: all 0.2s;" onmouseover="this.style.background='#10b981'" onmouseout="this.style.background='#fff'">IDENTIFY VISITOR</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scanning State Overlay -->
+    <div id="scanning-overlay" class="scanning-overlay">
+      <div class="scanning-bar" style="margin-bottom:24px;"></div>
+      <div id="scanning-text" style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#10b981; letter-spacing:0.1em; text-transform:uppercase;">Scanning...</div>
+      <div style="color:#71717a; font-size:11px; margin-top:8px;">Running identity resolution...</div>
+    </div>
+  </div>
+  
+  <div style="position:fixed; bottom:32px; color:#3f3f46; font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.1em;">Connected to PravahAI Cloud · v2.4.1-stable</div>
+</div>
+
+
+
+<div id="main-app-container" style="display:none;">
+
+
+<div id="flow-tabs" style="display:flex; align-items:center; padding: 6px 40px; background:#000; border-bottom:1px solid #111; gap: 24px; position: sticky; top: 0; z-index: 1000;">
+  <div onclick="window.history.back()" style="cursor:pointer; display:flex; align-items:center; color:#71717a; transition:color 0.2s; margin-right: 12px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    <span style="font-family:'JetBrains Mono',monospace; font-size:7px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase;">Back</span>
+  </div>
+  <div id="flow-tab-1" onclick="returnToCaptureScreen()" style="cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:7px; font-weight:800; color:#10b981; border-bottom:1px solid #10b981; letter-spacing:0.1em; transition: all 0.3s ease;">P1: IDENTITY RESOLUTION</div>
+  <div id="flow-tab-2" onclick="show('intelligence', document.querySelector('.tab[onclick*=\'intelligence\']'))" style="cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:7px; font-weight:800; color:#3f3f46; letter-spacing:0.1em; transition: all 0.3s ease;">P2: PROFILE INTELLIGENCE</div>
+  <div id="flow-tab-3" onclick="show('meeting-summary', document.getElementById('summary-tab-btn'))" style="cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:7px; font-weight:800; color:#3f3f46; letter-spacing:0.1em; transition: all 0.3s ease;">P3: SUMMARY & FOLLOW-UP</div>
+</div>
+
+<div class="hero">
+  <!-- Redesigned High-Density Cohesive Header Bar -->
+  <div class="hero-identity-row" style="display:flex; align-items:center; justify-content:space-between; gap:16px; background:rgba(0,0,0,0.35); border:1px solid #27272a; border-radius:8px; padding:10px 16px; margin-bottom:12px;">
+    
+    <!-- Left: Identity, Role, Email & Context Pills -->
+    <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+      <!-- Avatar with REC ring -->
+      <div class="avatar-wrapper recording" id="avatar-wrapper" onclick="handleAvatarClick()" title="Click to Pause/Resume" style="flex-shrink:0;">
+        <img class="avatar" id="hero-avatar" src="/prerit_khandelwal.png" alt="Prerit Khandelwal" style="width:48px; height:48px;">
+        <div class="avatar-rec-ring" id="avatar-rec-ring"></div>
+        <div class="avatar-rec-badge" id="avatar-rec-badge">
+          <span class="avatar-rec-dot"></span>
+          <span id="avatar-rec-text">REC</span>
+        </div>
+      </div>
+
+      <!-- Identity & Info Cluster -->
+      <div style="display:flex; flex-direction:column; gap:4px; min-width:0;">
+        <!-- Row 1: Name + Tier Tag + Inline Email Pill + Send Invite Button -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div class="name" style="font-size:17px; font-weight:800; color:#fff; letter-spacing:-0.02em;">Prerit <span style="color:#10b981;">Khandelwal</span></div>
+          <span class="ci-tag g-text" style="font-family:'JetBrains Mono',monospace; font-size:9px; padding:2px 8px; font-weight:700;">TIER A · BUYING COMMITTEE</span>
+          
+          <!-- Compact Inline Email Pill -->
+          <div id="email-resolved-view" style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.03); border:1px solid #27272a; padding:2px 8px; border-radius:4px;">
+            <span class="bc-dot g" id="email-dot" style="width:5px; height:5px;"></span>
+            <span id="display-email" style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#fff;">prerit.khandelwal@delhivery.com</span>
+            <span class="bc-badge g" id="email-status-badge" style="font-size:7.5px; padding:1px 4px;">VERIFIED</span>
+            <span onclick="toggleEmailEdit(true)" style="color:#71717a; cursor:pointer; font-size:9.5px; display:inline-flex; align-items:center; margin-left:2px;" title="Edit email" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#71717a'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </span>
+          </div>
+
+          <!-- Send Meeting Invite Button (Directly Next to Email) -->
+          <button onclick="openInviteModal()" id="hero-send-invite-btn" class="bc-sync-btn" style="display:inline-flex; align-items:center; gap:5px; background:#10b981; color:#000; padding:3px 9px; font-size:10px; font-weight:800; border-radius:4px; transition:all 0.2s; white-space:nowrap; cursor:pointer;" title="Send Calendar Invite">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span id="hero-send-invite-text">Send Invite</span>
+          </button>
+
+          <!-- Hidden inline edit view for email -->
+          <div id="email-edit-view" style="display:none; align-items:center; gap:6px;">
+            <input type="text" id="custom-verify-email" value="prerit.khandelwal@delhivery.com" class="bc-input" style="padding:2px 6px; font-size:10.5px; width:190px;" placeholder="Enter email">
+            <button onclick="confirmAndSyncCRM()" id="btn-verify-sync" class="bc-sync-btn" style="padding:2px 8px; font-size:9px;">Save</button>
+            <span onclick="toggleEmailEdit(false)" style="color:#71717a; cursor:pointer; font-size:10px;">✕</span>
+          </div>
+        </div>
+
+        <!-- Row 2: Subtitle & Context Pills -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11.5px; color:#a1a1aa;">
+          <span>VP, Supply Chain Operations · <strong style="color:#fff;">Delhivery</strong> · Gurugram</span>
+          <span style="color:#3f3f46;">•</span>
+          <span style="color:#10b981; font-family:'JetBrains Mono',monospace; font-size:9.5px; background:rgba(16,185,129,0.08); padding:1px 6px; border-radius:3px; border:1px solid rgba(16,185,129,0.2);">UAE Expansion & APIs</span>
+          <span style="color:#818cf8; font-family:'JetBrains Mono',monospace; font-size:9.5px; background:rgba(129,140,248,0.08); padding:1px 6px; border-radius:3px; border:1px solid rgba(129,140,248,0.2);">Budget Owner ($120k)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Tight Action Controls Dock -->
+    <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+      <!-- Start / Restart Recording Button (shown when stopped) -->
+      <button class="btn-record" id="restart-record-btn" onclick="restartRecording()" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); color:#ef4444; align-items:center; gap:5px; font-size:10.5px; padding:6px 12px;" title="Start new live recording session">
+        <span style="width:5px; height:5px; background:#ef4444; border-radius:50%; display:inline-block; animation:pulse-red 1.5s infinite;"></span>
+        <span>Start Recording</span>
+      </button>
+
+      <!-- Pause / Resume Button (shown during recording) -->
+      <button class="btn-record" id="pause-btn" onclick="togglePauseRecording()" style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); color:#f59e0b; display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:6px 12px;" title="Pause / Resume recording">
+        <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+        <span id="pause-btn-text">Pause</span>
+      </button>
+
+      <!-- Stop & Generate Summary Button (shown during recording) -->
+      <button class="btn-record" id="stop-summary-btn" style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); color:#ef4444; display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:6px 12px;" onclick="stopAndSummary()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+        Stop & Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- 3-Card High-Density Battlecard Grid -->
+  <div class="battlecard-grid">
+    
+    <!-- CARD 1: VISITOR OPPORTUNITY & CRM CONTEXT -->
+    <div class="bc-card" id="bc-crm-card">
+      <div class="bc-header">
+        <div class="bc-title"><span class="bc-dot y" id="crm-dot"></span>OPPORTUNITY & CRM</div>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span class="bc-badge y" id="crm-badge">STAGE 3 · EVAL</span>
+          <span class="bc-badge y" id="crm-owner-badge" style="background:rgba(255,255,255,0.05); color:#a1a1aa; border-color:#3f3f46;">OWNER: RAJ MEHTA</span>
+        </div>
+      </div>
+      <div class="bc-main-val" id="crm-main-val">$120,000 ARR Opportunity</div>
+      <div class="bc-sub-val" id="crm-sub-val" style="display:flex; flex-direction:column; gap:4px; margin-top:2px;">
+        <div style="color:#e4e4e7;"><span style="color:#f59e0b; font-weight:700;">1. [What Happened]</span> Demo 45d ago with Raj; paused awaiting UAE tracking API spec & SOC2 Annex</div>
+        <div style="color:#a1a1aa;"><span style="color:#f59e0b; font-weight:700;">2. [Next CRM Step]</span> Clear security review & schedule technical deep-dive pilot</div>
+      </div>
+    </div>
+
+    <!-- CARD 2: COMPANY INTELLIGENCE (2 POINTS) -->
+    <div class="bc-card" id="bc-company-card">
+      <div class="bc-header">
+        <div class="bc-title"><span class="bc-dot g"></span>COMPANY INTELLIGENCE</div>
+        <span class="bc-badge g">2 POINTS</span>
+      </div>
+      <div class="bc-sub-val" id="company-sub-val" style="display:flex; flex-direction:column; gap:4px; margin-top:2px;">
+        <div style="color:#e4e4e7;"><span style="color:#10b981; font-weight:700;">1. [Expansion Pain]</span> Scaling GCC/UAE routes where carrier blindspots cause SLA disputes — <em>our unified gateway automates milestone reconciliation across all regional 3PLs</em></div>
+        <div style="color:#e4e4e7;"><span style="color:#10b981; font-weight:700;">2. [Tech Modernization]</span> Legacy batch EDI feeds have 40% update latency — <em>our API bridge streams sub-second location & exception pings into their Oracle TMS</em></div>
+      </div>
+    </div>
+
+    <!-- CARD 3: PERSONA TALKING POINTS (2 POINTS) -->
+    <div class="bc-card" id="bc-linkedin-card">
+      <div class="bc-header">
+        <div class="bc-title"><span class="bc-dot b"></span>PERSONA TALKING POINTS</div>
+        <span class="bc-badge b">2 POINTS</span>
+      </div>
+      <div class="bc-sub-val" style="display:flex; flex-direction:column; gap:4px; margin-top:2px;">
+        <div style="color:#e4e4e7;"><span style="color:#818cf8; font-weight:700;">1. [Where Involved]</span> Heading Cross-Border Digitization Taskforce to cut SLA penalty claims by 30% — <em>our instant e-POD & transit SLA alerting directly closes this gap</em></div>
+        <div style="color:#e4e4e7;"><span style="color:#818cf8; font-weight:700;">2. [Recent Post / Pain]</span> Posted on LinkedIn citing tracking blackouts during carrier handoffs — <em>our continuous telemetry bridge eliminates handoff blindspots with zero-lag updates</em></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab" id="summary-tab-btn" onclick="show('meeting-summary',this)" style="display:none; color:#10b981; border-bottom-color:#10b981">Summary</button>
+  <button class="tab active" onclick="show('intelligence',this)">Intelligence</button>
+  <button class="tab" onclick="show('overview-summary',this)">Overview</button>
+</div>
+
+<div class="body">
+
+  <!-- SESSION TELEMETRY & SCORES STRIP (Positioned just below tabs) -->
+  <div style="display:inline-flex; align-items:center; gap:18px; background:#0c0c0e; border:1px solid #27272a; border-radius:6px; padding:9px 18px; margin-bottom:20px; flex-wrap:wrap;">
+    
+    <!-- 1. Session Started -->
+    <div style="display:flex; flex-direction:column; gap:3px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em;">Session Started</div>
+      <div id="session-time" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff; font-weight:700;">--</div>
+    </div>
+    
+    <div style="height:20px; width:1px; background:#27272a;"></div>
+    
+    <!-- 2. Duration -->
+    <div style="display:flex; flex-direction:column; gap:3px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em;">Duration</div>
+      <div id="session-duration" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#ef4444; font-weight:700;">00:00:00</div>
+    </div>
+    
+    <div style="height:20px; width:1px; background:#27272a;"></div>
+    
+    <!-- 3. Next Milestone -->
+    <div style="display:flex; flex-direction:column; gap:3px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em;">Next Milestone</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#10b981; font-weight:700;">TECHNICAL DEMO</div>
+    </div>
+
+    <div style="height:20px; width:1px; background:#3f3f46; margin:0 4px;"></div>
+
+    <!-- 4. Lead Score -->
+    <div style="display:flex; flex-direction:column; gap:3px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:800; color:#10b981; text-transform:uppercase; letter-spacing:0.06em;">Lead Score</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#10b981; font-weight:900;">94<span style="font-size:9px; color:#71717a; font-weight:600;">/100</span></div>
+    </div>
+
+    <div style="height:20px; width:1px; background:#27272a;"></div>
+
+    <!-- 5. Conv. Score -->
+    <div style="display:flex; flex-direction:column; gap:3px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; color:#a1a1aa; text-transform:uppercase; letter-spacing:0.06em;">Conv. Score</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#fff; font-weight:700;">85<span style="font-size:9px; color:#71717a; font-weight:600;">/100</span></div>
+    </div>
+
+    <div style="height:20px; width:1px; background:#27272a;"></div>
+
+    <!-- 6. Intent Score -->
+    <div style="display:flex; flex-direction:column; gap:3px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:800; color:#f59e0b; text-transform:uppercase; letter-spacing:0.06em;">Intent Score</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#f59e0b; font-weight:900;">HIGH</div>
+    </div>
+
+  </div>
+
+<!-- INTELLIGENCE -->
+<div class="panel active" id="intelligence">
+  <!-- LIVE RECORDING MODULE (Hidden by default) -->
+  <div id="recording-module" style="display:none; margin-bottom:24px; animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)">
+    
+    <!-- FREE TIER TACTICAL GRID: LIVE CONVERSATION + RIGHT COLUMN (MEETING INTENT & OPEN QUESTIONS) -->
+    <div style="display:grid; grid-template-columns: 1.15fr 1fr; gap:14px; align-items:stretch; height:380px; max-height:380px; overflow:hidden;">
+      
+      <!-- LEFT COLUMN: LIVE CONVERSATION & ANALYSIS STREAM (Fixed height with internal scroll) -->
+      <div style="background:#0d0d10; border:1px solid #27272a; border-radius:6px; display:flex; flex-direction:column; height:100%; max-height:100%; overflow:hidden;">
+        
+        <!-- Header -->
+        <div style="padding:10px 14px; border-bottom:1px solid #27272a; display:flex; justify-content:space-between; align-items:center; background:rgba(239, 68, 68, 0.04); flex-shrink:0;" id="live-log-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:6px; height:6px; background:#ef4444; border-radius:50%; animation: pulse-red 2s infinite;" id="live-log-dot"></span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#ef4444; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;" id="live-log-title">Live Conversation Stream</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:8px; color:#71717a; letter-spacing:0.04em;" id="live-trans-status">AUDIO STREAM ACTIVE</span>
+        </div>
+
+        <!-- Scrollable Conversation Feed (Internal scroll only) -->
+        <div class="custom-scroll" id="live-transcription-feed" style="flex:1; min-height:0; padding:12px 14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; font-family:'JetBrains Mono',monospace; font-size:10.5px; line-height:1.55; color:#a1a1aa;">
+          
+          <div style="padding-bottom:10px; margin-bottom:4px; border-bottom:1px dashed #27272a;">
+            <div style="font-size:8px; color:#71717a; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.05em; font-weight:700;">● PRIOR SESSION HISTORY (BOOTH CONTEXT)</div>
+            <div style="margin-bottom:6px">[Visitor] <span style="color:#fff">"UAE residency is non-negotiable for our CISO. We need data residency proof before we even talk pricing."</span></div>
+            <div style="margin-bottom:6px">[You] <span style="color:#fff">"Understood. We have localized docs and the SOC2 UAE Annex ready to share."</span></div>
+            <div style="opacity:0.9; font-size:9.5px;"><strong style="color:#10b981">OBJECTION RESOLVED</strong>: Compliance proof delivered.</div>
+          </div>
+
+          <div style="font-size:8.5px; color:#10b981; text-align:center; padding:4px 0; background:rgba(16,185,129,0.06); border-radius:3px; border:1px solid rgba(16,185,129,0.2); letter-spacing:0.05em;">
+            ▶ LIVE AUDIO STREAM ACTIVE (LISTENING...)
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: MEETING INTENT + OPEN QUESTIONS -->
+      <div style="display:flex; flex-direction:column; gap:12px; height:100%; max-height:100%; overflow:hidden;">
+        
+        <!-- CARD 1: MEETING INTENT & CALENDAR DISPATCH -->
+        <div id="free-meeting-intent-card" style="background:#0d0d10; border:1px solid #27272a; border-radius:6px; padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+          
+          <!-- Card Header -->
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; color:#10b981; letter-spacing:0.06em; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+              <span class="bc-dot g" style="width:6px; height:6px;"></span>
+              Meeting Intent Detected
+            </div>
+            <span class="bc-badge g" style="font-size:7.5px; padding:2px 6px;">CONFIRMED</span>
+          </div>
+
+          <!-- Meeting Spec Box -->
+          <div style="background:#08080a; border:1px solid #1f1f23; border-radius:4px; padding:8px 12px;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:7.5px; color:#10b981; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Next Meeting Finalised: YES</div>
+            <div style="font-size:12.5px; font-weight:800; color:#fff; letter-spacing:-0.01em;">MAY 02 @ 10:00 AM · TECH DEMO</div>
+          </div>
+
+          <!-- Attendees Section -->
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:7.5px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+              <span>Detected Guests</span>
+              <span style="color:#10b981;">Auto-detected from session</span>
+            </div>
+            <div id="quick-cal-chips" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:6px;">
+              <div class="email-chip" style="font-family:'JetBrains Mono',monospace; font-size:9px; padding:2px 7px; height:auto; background:rgba(255,255,255,0.03); border:1px solid #27272a; border-radius:4px; color:#e4e4e7;">
+                prerit.k@delhivery.com <span class="email-chip-remove" onclick="this.parentElement.remove()" style="font-size:10px; margin-left:3px; cursor:pointer;">×</span>
+              </div>
+              <div class="email-chip" style="font-family:'JetBrains Mono',monospace; font-size:9px; padding:2px 7px; height:auto; background:rgba(255,255,255,0.03); border:1px solid #27272a; border-radius:4px; color:#e4e4e7;">
+                arvind@pravahai.com <span class="email-chip-remove" onclick="this.parentElement.remove()" style="font-size:10px; margin-left:3px; cursor:pointer;">×</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="quick-cal-input" placeholder="+ Add guest email (press Enter)" style="flex:1; background:#08080a; border:1px solid #222226; border-radius:4px; color:#fff; font-size:9.5px; font-family:'JetBrains Mono',monospace; padding:5px 8px; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#222226'" onkeydown="handleQuickGuest(event)">
+              <button onclick="quickSendInvite(this)" style="background:#10b981; border:none; color:#000; padding:5px 12px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; letter-spacing:0.04em; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#34d399'" onmouseout="this.style.background='#10b981'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Send Invite
+              </button>
+            </div>
+          </div>
+
+          <script>
+            let isInviteSentGlobal = false;
+
+            function handleQuickGuest(e) {
+              if (e.key === 'Enter') {
+                const input = e.target;
+                const v = input.value.trim();
+                if (v) {
+                  const c = document.createElement('div');
+                  c.className = 'email-chip';
+                  c.style = 'font-family:\'JetBrains Mono\',monospace; font-size:9px; padding:2px 7px; height:auto; background:rgba(255,255,255,0.03); border:1px solid #27272a; border-radius:4px; color:#e4e4e7;';
+                  c.innerHTML = v + ' <span class="email-chip-remove" onclick="this.parentElement.remove()" style="font-size:10px; margin-left:3px; cursor:pointer;">×</span>';
+                  document.getElementById('quick-cal-chips').appendChild(c);
+                  
+                  const p3Chips = document.getElementById('cal-chips');
+                  if (p3Chips) {
+                    const c3 = document.createElement('div');
+                    c3.className = 'email-chip';
+                    c3.innerHTML = v + ' <span class="email-chip-remove" onclick="this.parentElement.remove(); onCalendarChange()">×</span>';
+                    p3Chips.appendChild(c3);
+                    if (typeof onCalendarChange === 'function') onCalendarChange();
+                  }
+                  input.value = '';
+                }
+                e.preventDefault();
+              }
+            }
+
+            function quickSendInvite(btn) {
+              isInviteSentGlobal = true;
+              btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Sent';
+              btn.style.background = '#065f46';
+              btn.style.color = '#fff';
+              btn.disabled = true;
+
+              const p3Btn = document.getElementById('btn-send-cal');
+              const p3Status = document.getElementById('cal-status');
+              if (p3Btn) {
+                p3Btn.classList.add('sent');
+                p3Btn.disabled = true;
+                p3Btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Sent';
+              }
+              if (p3Status) {
+                p3Status.textContent = 'Invite already sent via Intelligence Screen';
+                p3Status.style.color = '#10b981';
+              }
+
+              const guests = Array.from(document.querySelectorAll('#quick-cal-chips .email-chip')).map(c => c.textContent.replace('×','').trim()).join(', ');
+              alert('Calendar invite for MAY 02 @ 10:00 AM has been sent to: ' + guests);
+            }
+          </script>
+        </div>
+
+        <!-- CARD 2: OPEN QUESTIONS TO ASK (Clean checklist, no captured/pending status) -->
+        <div style="background:#0d0d10; border:1px solid #27272a; border-radius:6px; padding:14px 16px; display:flex; flex-direction:column; flex:1; justify-content:space-between; gap:10px;">
+          
+          <!-- Header -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:6px; border-bottom:1px solid #1f1f23;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; color:#fafafa; letter-spacing:0.06em; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+              <span class="bc-dot y" style="width:6px; height:6px;"></span>
+              Open Questions to Ask Visitor
+            </div>
+            <span class="bc-badge y" style="font-size:7.5px; padding:2px 6px; background:rgba(245,158,11,0.08); color:#f59e0b; border-color:rgba(245,158,11,0.25);">4 KEY QUALIFIERS</span>
+          </div>
+
+          <!-- Questions List -->
+          <div style="display:flex; flex-direction:column; gap:6px; flex:1; justify-content:center;">
+            
+            <div style="background:#08080a; border:1px solid #1f1f23; border-radius:4px; padding:8px 10px; display:flex; align-items:center; gap:8px; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#1f1f23'">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; color:#10b981; min-width:16px;">01</span>
+              <div style="font-size:11px; color:#e4e4e7; line-height:1.35;">Target timeline for decision &amp; pilot rollout?</div>
+            </div>
+
+            <div style="background:#08080a; border:1px solid #1f1f23; border-radius:4px; padding:8px 10px; display:flex; align-items:center; gap:8px; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#1f1f23'">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; color:#10b981; min-width:16px;">02</span>
+              <div style="font-size:11px; color:#e4e4e7; line-height:1.35;">Compliance &amp; security requirements (UAE SOC2 residency)?</div>
+            </div>
+
+            <div style="background:#08080a; border:1px solid #1f1f23; border-radius:4px; padding:8px 10px; display:flex; align-items:center; gap:8px; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#1f1f23'">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; color:#10b981; min-width:16px;">03</span>
+              <div style="font-size:11px; color:#e4e4e7; line-height:1.35;">Primary business challenge &amp; friction point in carrier routing?</div>
+            </div>
+
+            <div style="background:#08080a; border:1px solid #1f1f23; border-radius:4px; padding:8px 10px; display:flex; align-items:center; gap:8px; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#1f1f23'">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; color:#10b981; min-width:16px;">04</span>
+              <div style="font-size:11px; color:#e4e4e7; line-height:1.35;">Current vendor &amp; tech stack in place (Oracle TMS / EDI feeds)?</div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    <div style="height:1px; background:#27272a; margin-top:20px; opacity:0.3"></div>
+  </div> <!-- End Recording Module -->
+</div> <!-- End Intelligence Panel -->
+
+<!-- P3: MEETING SUMMARY -->
+<div class="panel" id="meeting-summary">
+  <!-- LOADING STATE (shown briefly) -->
+  <div id="summary-loading" style="display:none">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#10b981; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:20px; display:flex; align-items:center; gap:8px">
+      <span class="record-dot" style="background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.6); width:6px; height:6px"></span>
+      Generating meeting summary...
+    </div>
+    <div class="summary-loading-line" style="width:95%"></div>
+    <div class="summary-loading-line" style="width:88%"></div>
+    <div class="summary-loading-line" style="width:92%"></div>
+    <div class="summary-loading-line" style="width:70%"></div>
+    <div class="summary-loading-line" style="width:85%"></div>
+    <div class="summary-loading-line" style="width:45%"></div>
+  </div>
+
+  <!-- SUMMARY CONTENT (hidden until loaded) -->
+  <div id="summary-content" style="display:none">
+    <!-- Section 1: Editable Summary -->
+    <div class="summary-section" style="animation-delay:0s">
+      <div class="summary-section-title"><span class="ss-dot"></span> Meeting Summary</div>
+      <div class="summary-meta">
+        <div class="summary-meta-item"><strong>Duration:</strong> <span id="summary-duration-display">12m 34s</span></div>
+        <div class="summary-meta-item"><strong>Date:</strong> <span id="summary-date"></span></div>
+        <div class="summary-meta-item"><strong>Rep:</strong> Arvind (PravahAI)</div>
+        <div class="summary-meta-item"><strong>Visitor:</strong> Prerit Khandelwal (Delhivery)</div>
+        <div class="summary-meta-item" style="display:flex; align-items:center; gap:6px;">
+          <strong>Attendees:</strong>
+          <span id="summary-attendees-display" style="color:#10b981; font-weight:600;">Prerit Khandelwal</span>
+          <button onclick="addSummaryAttendeePrompt()" style="background:rgba(255,255,255,0.04); border:1px dashed #3f3f46; color:#a1a1aa; font-family:'JetBrains Mono',monospace; font-size:8.5px; padding:1px 6px; border-radius:3px; cursor:pointer;" onmouseover="this.style.borderColor='#10b981'; this.style.color='#10b981'" onmouseout="this.style.borderColor='#3f3f46'; this.style.color='#a1a1aa'">+ Add Attendee</button>
+        </div>
+      </div>
+
+      <div id="summary-text" style="display:flex; flex-direction:column; gap:8px">
+
+        <!-- KEY DISCUSSION POINTS — FULL WIDTH -->
+        <div class="s-card" style="background:#0d0d0f; border:1px solid #27272a; border-radius:6px; padding:12px 16px">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; color:#10b981; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px">
+            <span style="width:12px; height:1px; background:#10b981"></span>
+            Key Discussion Points
+          </div>
+          <ul class="s-list" style="list-style:none; padding:0; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:6px 16px">
+            <li class="s-item s-item-pain" contenteditable="true" style="grid-column:1/-1">Current tracking systems generate basic location data but zero contextual updates reach the logistics team — delays go unnoticed<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+            <li class="s-item" contenteditable="true">Evaluating predictive supply chain platforms to support their new UAE expansion and IICS 2026 partnerships<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+            <li class="s-item" contenteditable="true">Strong interest in AI-powered real-time ETA predictions and route optimization gap analysis<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+          </ul>
+          <button class="s-add" onclick="addBullet(this)">+ Add point</button>
+        </div>
+
+        <!-- 2×2 GRID -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+
+          <!-- TECHNICAL REQUIREMENTS -->
+          <div class="s-card" style="background:#0d0d0f; border:1px solid #27272a; border-radius:6px; padding:12px 16px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; color:#f59e0b; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px">
+              <span style="width:12px; height:1px; background:#f59e0b"></span>
+              Technical Requirements
+            </div>
+            <ul class="s-list" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px">
+              <li class="s-item" contenteditable="true">Data residency for UAE operations (SOC2 UAE Annex needed)<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item" contenteditable="true">Integration with existing SAP-based ERP reconciliation<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item" contenteditable="true">API-first approach — programmatic access to shipment intelligence<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item" contenteditable="true">Maersk / DP World connector for port reconciliation (currently manual)<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+            </ul>
+            <button class="s-add" onclick="addBullet(this)">+ Add requirement</button>
+          </div>
+
+
+          <!-- NEXT STEPS -->
+          <div class="s-card" style="background:#0d0d0f; border:1px solid #27272a; border-radius:6px; padding:12px 16px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; color:#818cf8; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px">
+              <span style="width:12px; height:1px; background:#818cf8"></span>
+              Next Steps
+            </div>
+            <ul class="s-list" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px">
+              <li class="s-item" contenteditable="true">Schedule technical deep-dive within 2 weeks <span class="s-badge-cal">📅 Calendar invite will be sent</span><span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item" contenteditable="true">Share product roadmap for Maersk native connector<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item" contenteditable="true">Follow up with logistics case study (Delhivery/BlueDart scale)<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+            </ul>
+            <button class="s-add" onclick="addBullet(this)">+ Add step</button>
+          </div>
+
+          <!-- COMMITMENTS MADE -->
+          <div class="s-card" style="background:#0d0d0f; border:1px solid rgba(16,185,129,0.15); border-radius:6px; padding:12px 16px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; color:#10b981; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px">
+              <span style="width:12px; height:1px; background:#10b981"></span>
+              Commitments Made
+            </div>
+            <ul class="s-list" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px">
+              <li class="s-item" contenteditable="true">Share SOC2 UAE Annex documentation by EOD Friday<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item" contenteditable="true">Intro to the MENA solutions architecture lead for technical scoping<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+            </ul>
+            <button class="s-add" onclick="addBullet(this)">+ Add commitment</button>
+          </div>
+
+          <!-- OPEN QUESTIONS -->
+          <div class="s-card" style="background:#0d0d0f; border:1px solid rgba(239,68,68,0.15); border-radius:6px; padding:12px 16px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; color:#ef4444; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px">
+              <span style="width:12px; height:1px; background:#ef4444"></span>
+              Open Questions
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:8px; color:#f59e0b; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px"><span style="width:8px; height:1px; background:#f59e0b"></span>Questions from Visitor</div>
+            <ul class="s-list" style="list-style:none; padding:0; margin:0 0 10px 0; display:flex; flex-direction:column; gap:6px">
+              <li class="s-item s-item-q" contenteditable="true">Can you guarantee data residency within UAE for all captured logistics data?<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item s-item-q" contenteditable="true">What is the SLA for cross-border freight tracking API resolution?<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+            </ul>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:8px; color:#818cf8; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px"><span style="width:8px; height:1px; background:#818cf8"></span>Questions from Us (PravahAI)</div>
+            <ul class="s-list" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px">
+              <li class="s-item s-item-q" contenteditable="true">Who is the CISO that will approve the security review?<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+              <li class="s-item s-item-q" contenteditable="true">Is the SAP ERP connector a hard blocker or nice-to-have?<span class="s-del" onclick="this.parentElement.remove()">×</span></li>
+            </ul>
+            <button class="s-add" onclick="addBullet(this)">+ Add question</button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="summary-actions">
+          <button class="btn-approve" id="btn-approve-summary" onclick="approveSummary()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Approve Summary
+          </button>
+          <button class="btn-edit" id="btn-edit-summary" onclick="reEditSummary()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            Re-edit
+          </button>
+          <span id="approve-status" style="font-size:10px; color:#71717a; font-family:'JetBrains Mono',monospace"></span>
+      </div>
+    </div>
+
+    <!-- Section 2: Email Follow-Up -->
+    <div class="summary-section" id="email-section" style="animation-delay:0.1s">
+      <div class="summary-section-title"><span class="ss-dot"></span> Email Follow-Up</div>
+      <div id="email-controls" class="disabled-overlay">
+        <div class="email-field">
+          <div class="email-field-label">To</div>
+          <input type="text" class="email-field-input" id="email-to" value="prerit.khandelwal@delhivery.com" readonly style="color:#10b981; font-family:'JetBrains Mono',monospace; font-size:11px">
+        </div>
+        <div class="email-field">
+          <div class="email-field-label">CC</div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:6px">
+            <div id="cc-chips" style="display:flex; flex-wrap:wrap; gap:6px"></div>
+            <div style="display:flex; gap:6px">
+              <input type="text" class="email-field-input" id="cc-input" placeholder="Add email and press Enter" style="flex:1" onkeydown="if(event.key==='Enter'){addCcRecipient(); event.preventDefault()}">
+              <button onclick="addCcRecipient()" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:#10b981; padding:0 12px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; cursor:pointer; letter-spacing:0.05em">ADD</button>
+            </div>
+          </div>
+        </div>
+        <div class="email-field">
+          <div class="email-field-label">Subject</div>
+          <input type="text" class="email-field-input" id="email-subject" value="Following up from IICS 2026 — Prerit / Arvind (Pravah AI)">
+        </div>
+        <div style="margin-top:8px; margin-bottom:6px; font-family:'JetBrains Mono',monospace; font-size:9px; color:#71717a; letter-spacing:0.1em; text-transform:uppercase">Preview</div>
+        <div class="email-body-preview" id="email-body-preview">
+          <strong style="color:#e4e4e7">Hi Prerit,</strong><br><br>
+          Thank you for taking the time to connect with us at IICS 2026. It was a great conversation — I'm sharing a structured summary of what we discussed along with our committed next steps below.<br><br>
+          <em style="color:#52525b">Approve the summary above to populate this preview.</em>
+        </div>
+        <div class="summary-actions">
+          <button class="btn-send" id="btn-send-email" onclick="sendFollowUpEmail()" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            Send Email
+          </button>
+          <span id="email-status" style="font-size:10px; color:#71717a; font-family:'JetBrains Mono',monospace"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Calendar Invite -->
+    <div class="summary-section" id="calendar-section" style="animation-delay:0.2s">
+      <div class="summary-section-title"><span class="ss-dot"></span> Calendar Invite</div>
+      <div id="calendar-controls" class="disabled-overlay">
+        <div class="cal-row">
+          <div class="email-field">
+            <div class="email-field-label">Title</div>
+            <input type="text" class="email-field-input" id="cal-title" value="PravahAI × Logistics — Technical Deep-Dive" oninput="onCalendarChange()">
+          </div>
+        </div>
+        <div class="cal-row">
+          <div class="email-field">
+            <div class="email-field-label">Date</div>
+            <input type="date" class="email-field-input" id="cal-date" style="font-family:'JetBrains Mono',monospace; font-size:11px" onchange="onCalendarChange()">
+          </div>
+          <div class="email-field">
+            <div class="email-field-label">Time</div>
+            <select class="email-field-input" id="cal-time" style="font-family:'JetBrains Mono',monospace; font-size:11px; appearance:auto; cursor:pointer" onchange="onCalendarChange()">
+              <!-- AM -->
+              <option value="00:00">12:00 AM</option>
+              <option value="00:15">12:15 AM</option>
+              <option value="00:30">12:30 AM</option>
+              <option value="00:45">12:45 AM</option>
+              <option value="01:00">01:00 AM</option>
+              <option value="01:15">01:15 AM</option>
+              <option value="01:30">01:30 AM</option>
+              <option value="01:45">01:45 AM</option>
+              <option value="02:00">02:00 AM</option>
+              <option value="02:15">02:15 AM</option>
+              <option value="02:30">02:30 AM</option>
+              <option value="02:45">02:45 AM</option>
+              <option value="03:00">03:00 AM</option>
+              <option value="03:15">03:15 AM</option>
+              <option value="03:30">03:30 AM</option>
+              <option value="03:45">03:45 AM</option>
+              <option value="04:00">04:00 AM</option>
+              <option value="04:15">04:15 AM</option>
+              <option value="04:30">04:30 AM</option>
+              <option value="04:45">04:45 AM</option>
+              <option value="05:00">05:00 AM</option>
+              <option value="05:15">05:15 AM</option>
+              <option value="05:30">05:30 AM</option>
+              <option value="05:45">05:45 AM</option>
+              <option value="06:00">06:00 AM</option>
+              <option value="06:15">06:15 AM</option>
+              <option value="06:30">06:30 AM</option>
+              <option value="06:45">06:45 AM</option>
+              <option value="07:00">07:00 AM</option>
+              <option value="07:15">07:15 AM</option>
+              <option value="07:30">07:30 AM</option>
+              <option value="07:45">07:45 AM</option>
+              <option value="08:00">08:00 AM</option>
+              <option value="08:15">08:15 AM</option>
+              <option value="08:30">08:30 AM</option>
+              <option value="08:45">08:45 AM</option>
+              <option value="09:00">09:00 AM</option>
+              <option value="09:15">09:15 AM</option>
+              <option value="09:30">09:30 AM</option>
+              <option value="09:45">09:45 AM</option>
+              <option value="10:00">10:00 AM</option>
+              <option value="10:15">10:15 AM</option>
+              <option value="10:30">10:30 AM</option>
+              <option value="10:45">10:45 AM</option>
+              <option value="11:00">11:00 AM</option>
+              <option value="11:15">11:15 AM</option>
+              <option value="11:30">11:30 AM</option>
+              <option value="11:45">11:45 AM</option>
+              <!-- PM -->
+              <option value="12:00">12:00 PM</option>
+              <option value="12:15">12:15 PM</option>
+              <option value="12:30">12:30 PM</option>
+              <option value="12:45">12:45 PM</option>
+              <option value="13:00">01:00 PM</option>
+              <option value="13:15">01:15 PM</option>
+              <option value="13:30">01:30 PM</option>
+              <option value="13:45">01:45 PM</option>
+              <option value="14:00">02:00 PM</option>
+              <option value="14:15">02:15 PM</option>
+              <option value="14:30">02:30 PM</option>
+              <option value="14:45">02:45 PM</option>
+              <option value="15:00" selected>03:00 PM</option>
+              <option value="15:15">03:15 PM</option>
+              <option value="15:30">03:30 PM</option>
+              <option value="15:45">03:45 PM</option>
+              <option value="16:00">04:00 PM</option>
+              <option value="16:15">04:15 PM</option>
+              <option value="16:30">04:30 PM</option>
+              <option value="16:45">04:45 PM</option>
+              <option value="17:00">05:00 PM</option>
+              <option value="17:15">05:15 PM</option>
+              <option value="17:30">05:30 PM</option>
+              <option value="17:45">05:45 PM</option>
+              <option value="18:00">06:00 PM</option>
+              <option value="18:15">06:15 PM</option>
+              <option value="18:30">06:30 PM</option>
+              <option value="18:45">06:45 PM</option>
+              <option value="19:00">07:00 PM</option>
+              <option value="19:15">07:15 PM</option>
+              <option value="19:30">07:30 PM</option>
+              <option value="19:45">07:45 PM</option>
+              <option value="20:00">08:00 PM</option>
+              <option value="20:15">08:15 PM</option>
+              <option value="20:30">08:30 PM</option>
+              <option value="20:45">08:45 PM</option>
+              <option value="21:00">09:00 PM</option>
+              <option value="21:15">09:15 PM</option>
+              <option value="21:30">09:30 PM</option>
+              <option value="21:45">09:45 PM</option>
+              <option value="22:00">10:00 PM</option>
+              <option value="22:15">10:15 PM</option>
+              <option value="22:30">10:30 PM</option>
+              <option value="22:45">10:45 PM</option>
+              <option value="23:00">11:00 PM</option>
+              <option value="23:15">11:15 PM</option>
+              <option value="23:30">11:30 PM</option>
+              <option value="23:45">11:45 PM</option>
+            </select>
+          </div>
+          <div class="email-field">
+            <div class="email-field-label">Duration</div>
+            <select class="email-field-input" id="cal-duration" style="font-family:'JetBrains Mono',monospace; font-size:11px; appearance:auto; cursor:pointer" onchange="onCalendarChange()">
+              <option value="15">15 min</option>
+              <option value="30" selected>30 min</option>
+              <option value="45">45 min</option>
+              <option value="60">1 hour</option>
+              <option value="90">1.5 hours</option>
+              <option value="120">2 hours</option>
+            </select>
+          </div>
+        </div>
+        <div class="email-field">
+          <div class="email-field-label">Guests</div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:6px">
+            <div id="cal-chips" style="display:flex; flex-wrap:wrap; gap:6px">
+              <div class="email-chip">prerit.khandelwal@delhivery.com <span class="email-chip-remove" onclick="this.parentElement.remove(); onCalendarChange()">×</span></div>
+              <div class="email-chip">arvind@pravahai.com <span class="email-chip-remove" onclick="this.parentElement.remove(); onCalendarChange()">×</span></div>
+            </div>
+            <div style="display:flex; gap:6px">
+              <input type="text" class="email-field-input" id="cal-guest-input" placeholder="Add guest email and press Enter" style="flex:1" onkeydown="if(event.key==='Enter'){addCalGuest(); event.preventDefault()}">
+              <button onclick="addCalGuest()" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:#10b981; padding:0 12px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; cursor:pointer; letter-spacing:0.05em">ADD</button>
+            </div>
+          </div>
+        </div>
+        <div class="email-field" style="align-items:flex-start; margin-top:4px">
+          <div class="email-field-label" style="padding-top:6px">Notes</div>
+          <textarea class="email-field-input" id="cal-notes" rows="3" placeholder="Agenda, discussion topics, or pre-meeting context..." style="font-family:'JetBrains Mono',monospace; font-size:11px; height:auto; padding:8px 12px; resize:vertical; line-height:1.5" oninput="onCalendarChange()"></textarea>
+        </div>
+        <div class="summary-actions">
+          <button class="btn-send" id="btn-send-cal" onclick="sendCalendarInvite()" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Send Invite
+          </button>
+          <span id="cal-status" style="font-size:10px; color:#71717a; font-family:'JetBrains Mono',monospace"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW SUMMARY -->
+<div class="panel" id="overview-summary">
+  <div class="ov2" style="margin-bottom: 8px; grid-template-columns: 1fr 1fr;">
+    <div class="oc">
+      <div class="ot">ABOUT</div>
+      <div class="ob" style="line-height: 1.5;">
+        • Strategic Analytics Leader with over 11 years of experience steering data strategy in the payments and retail sectors. • Expert Team Builder who recruited and scaled a high-performing analytics team from the ground up to a 30+ member function. • Innovator in AI and Data Products who conceptualized and delivered a Gen-AI Analyst Assistant, achieving 50X efficiency gains in insight generation. • Business-focused professional who influences decision-making to drive revenue, enhance customer experience, and mitigate risk • Leadership competencies: Strategic Planning & Execution, Data Strategy & Governance, Predictive & Generative AI Innovation, Business & P&L Impact, Data Democratization, Change Management
+      </div>
+    </div>
+    <div class="oc">
+      <div class="ot">CURRENT COMPANY — RAZORPAY</div>
+      <div class="ob" style="line-height: 1.5;">
+        <span style="color: #999;">Type:</span> Software Development / Fintech<br>
+        <span style="color: #999;">HQ:</span> Bangalore, India · <span style="color: #999;">Employees:</span> ~4,061<br>
+        <span style="color: #999;">Stage:</span> Series F ($375M, pre-IPO)<br>
+        <span style="color: #999;">Moat:</span> Agentic Payments, RBI Trifecta Moat
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+<script>
+function confirmEmail(btn) {
+  const row = btn.closest('.email-row');
+  const container = row.parentElement;
+  
+  // Remove all other email rows in this grid
+  Array.from(container.children).forEach(child => {
+    if (child !== row && child.classList.contains('email-row')) child.remove();
+  });
+  
+  // Style the confirmed email
+  btn.classList.add('confirmed');
+  btn.innerText = 'VERIFIED';
+  btn.style.background = 'rgba(16,185,129,0.15)';
+  
+  const input = row.querySelector('.email-input');
+  input.style.color = '#10b981';
+  input.style.borderColor = '#10b981';
+  input.style.borderStyle = 'solid';
+
+  // Update label
+  const label = document.getElementById('email-predictions-label');
+  if (label) label.innerText = 'Confirmed Email (Editable)';
+
+  // Transition Flow Tabs
+  const tab1 = document.getElementById('flow-tab-1');
+  const tab2 = document.getElementById('flow-tab-2');
+  if (tab1 && tab2) {
+    tab1.style.color = '#3f3f46';
+    tab1.style.borderBottom = 'none';
+    tab2.style.color = '#10b981';
+    tab2.style.borderBottom = '1px solid #10b981';
+  }
+
+  // Show CRM Panel
+  const personaPanel = document.getElementById('persona-panel');
+  const delhiveryPanel = document.getElementById('delhivery-panel');
+  const crmPanel = document.getElementById('crm-panel');
+  
+  if (personaPanel && delhiveryPanel && crmPanel) {
+    personaPanel.style.flex = '0 0 30%';
+    delhiveryPanel.style.flex = '0 0 35%';
+    crmPanel.style.display = 'flex';
+  }
+}
+
+function handleInput(input) {
+  const row = input.closest('.email-row') || input.closest('.input-group');
+  const btn = row.querySelector('.btn-confirm');
+  const fetchBtn = row.querySelector('.btn-fetch');
+  
+  // Any change enables the fetch button
+  if (fetchBtn) {
+    fetchBtn.disabled = false;
+    fetchBtn.style.opacity = '1';
+    fetchBtn.style.pointerEvents = 'auto';
+  }
+
+  if (btn && btn.innerText === 'VERIFIED') {
+    btn.innerText = 'Confirm';
+    btn.classList.remove('confirmed');
+    btn.style.background = '';
+    input.style.color = '';
+    input.style.borderColor = '';
+    input.style.borderStyle = 'dashed';
+
+    // Hide CRM Panel if email is no longer verified
+    const personaPanel = document.getElementById('persona-panel');
+    const delhiveryPanel = document.getElementById('delhivery-panel');
+    const crmPanel = document.getElementById('crm-panel');
+    
+    if (personaPanel && delhiveryPanel && crmPanel) {
+      personaPanel.style.flex = '0 0 50%';
+      delhiveryPanel.style.flex = '0 0 50%';
+      crmPanel.style.display = 'none';
+    }
+  }
+}
+
+function handleLinkedInInput(input) {
+  const fetchBtn = document.getElementById('linkedin-fetch');
+  
+  // Any change enables the fetch button
+  fetchBtn.disabled = false;
+  fetchBtn.style.opacity = '1';
+  fetchBtn.style.pointerEvents = 'auto';
+}
+
+
+
+function confirmDomain(btn) {
+  const row = btn.closest('.email-row');
+  const container = row.parentElement;
+  
+  // Remove all other domain rows
+  Array.from(container.children).forEach(child => {
+    if (child !== row && child.classList.contains('email-row')) child.remove();
+  });
+  
+  // Style the confirmed domain
+  btn.classList.add('confirmed');
+  btn.innerText = 'VERIFIED';
+  btn.style.background = 'rgba(16,185,129,0.15)';
+  
+  const input = row.querySelector('.email-input');
+  input.style.color = '#10b981';
+  input.style.borderColor = '#10b981';
+  input.style.borderStyle = 'solid';
+
+  const fetchBtn = row.querySelector('.btn-fetch');
+  if (fetchBtn) {
+    fetchBtn.disabled = false;
+    fetchBtn.style.opacity = '1';
+    fetchBtn.style.pointerEvents = 'auto';
+  }
+
+  // Transition Flow Tabs if not already transitioned
+  const tab2 = document.getElementById('flow-tab-2');
+  if (tab2 && tab2.style.color !== 'rgb(16, 185, 129)') {
+    const tab1 = document.getElementById('flow-tab-1');
+    tab1.style.color = '#3f3f46';
+    tab1.style.borderBottom = 'none';
+    tab2.style.color = '#10b981';
+    tab2.style.borderBottom = '1px solid #10b981';
+  }
+}
+
+function fetchCompanyDetails(btn) {
+  btn.innerText = 'Fetching...';
+  btn.style.opacity = '0.7';
+  setTimeout(() => {
+    btn.innerText = 'Fetch Details';
+    btn.style.opacity = '0.5';
+    btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    alert('Company details refreshed based on ' + btn.parentElement.querySelector('input').value);
+  }, 1200);
+}
+
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.addEventListener('beforeunload', () => window.scrollTo(0, 0));
+document.addEventListener('DOMContentLoaded', () => window.scrollTo(0, 0));
+window.addEventListener('load', () => window.scrollTo(0, 0));
+
+
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  
+  const targetPanel = document.getElementById(id);
+  if (targetPanel) targetPanel.classList.add('active');
+  
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    const matchingTab = document.querySelector(`.tab[onclick*="'${id}'"]`);
+    if (matchingTab) matchingTab.classList.add('active');
+  }
+  
+  // Ensure recording module is visible when returning to Intelligence panel
+  if (id === 'intelligence') {
+    const mod = document.getElementById('recording-module');
+    if (mod) mod.style.display = 'block';
+    
+    const ft1 = document.getElementById('flow-tab-1');
+    const ft2 = document.getElementById('flow-tab-2');
+    const ft3 = document.getElementById('flow-tab-3');
+    if (ft1) { ft1.style.color = '#3f3f46'; ft1.style.borderBottom = 'none'; }
+    if (ft2) { ft2.style.color = '#10b981'; ft2.style.borderBottom = '1px solid #10b981'; }
+    if (ft3) { ft3.style.color = '#3f3f46'; ft3.style.borderBottom = 'none'; }
+  } else if (id === 'meeting-summary') {
+    const ft1 = document.getElementById('flow-tab-1');
+    const ft2 = document.getElementById('flow-tab-2');
+    const ft3 = document.getElementById('flow-tab-3');
+    if (ft1) { ft1.style.color = '#3f3f46'; ft1.style.borderBottom = 'none'; }
+    if (ft2) { ft2.style.color = '#3f3f46'; ft2.style.borderBottom = 'none'; }
+    if (ft3) { ft3.style.color = '#10b981'; ft3.style.borderBottom = '1px solid #10b981'; }
+  }
+}
+
+function returnToCaptureScreen() {
+  document.getElementById('main-app-container').style.display = 'none';
+  const cap = document.getElementById('capture-screen');
+  if (cap) {
+    cap.style.display = 'flex';
+    cap.style.opacity = '1';
+    cap.style.transform = 'scale(1)';
+  }
+  
+  const ft1 = document.getElementById('flow-tab-1');
+  const ft2 = document.getElementById('flow-tab-2');
+  const ft3 = document.getElementById('flow-tab-3');
+  if (ft1) { ft1.style.color = '#10b981'; ft1.style.borderBottom = '1px solid #10b981'; }
+  if (ft2) { ft2.style.color = '#3f3f46'; ft2.style.borderBottom = 'none'; }
+  if (ft3) { ft3.style.color = '#3f3f46'; ft3.style.borderBottom = 'none'; }
+}
+
+let isRecordingPaused = false;
+let sessionSeconds = 0;
+let timerInterval = null;
+
+function formatCurrentDateTime(date = new Date()) {
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const month = months[date.getMonth()];
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const mins = String(date.getMinutes()).padStart(2, '0');
+  const secs = String(date.getSeconds()).padStart(2, '0');
+  return `${month} ${day} · ${hours}:${mins}:${secs}`;
+}
+
+function updateSessionStartTime() {
+  const el = document.getElementById('session-time');
+  if (el) {
+    el.innerText = formatCurrentDateTime();
+  }
+}
+
+function startTimer(reset = false) {
+  if (reset) sessionSeconds = 0;
+  if (timerInterval) clearInterval(timerInterval);
+  const durEl = document.getElementById('session-duration');
+  const updateDisplay = () => {
+    const hrs = String(Math.floor(sessionSeconds / 3600)).padStart(2, '0');
+    const mins = String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2, '0');
+    const secs = String(sessionSeconds % 60).padStart(2, '0');
+    if (durEl) durEl.innerText = `${hrs}:${mins}:${secs}`;
+  };
+  updateDisplay();
+  timerInterval = setInterval(() => {
+    if (!isRecordingPaused) {
+      sessionSeconds++;
+      updateDisplay();
+    }
+  }, 1000);
+}
+
+// Initial session timestamp on script evaluation
+updateSessionStartTime();
+
+function togglePauseRecording() {
+  const pauseBtn = document.getElementById('pause-btn');
+  const pauseText = document.getElementById('pause-btn-text');
+  const pauseIcon = document.getElementById('pause-icon');
+  const avatarWrapper = document.getElementById('avatar-wrapper');
+  const avatarRecText = document.getElementById('avatar-rec-text');
+  const liveLogDot = document.getElementById('live-log-dot');
+  const liveLogTitle = document.getElementById('live-log-title');
+  const liveTransStatus = document.getElementById('live-trans-status');
+  const sessionDur = document.getElementById('session-duration');
+  
+  isRecordingPaused = !isRecordingPaused;
+  
+  if (isRecordingPaused) {
+    // PAUSED STATE
+    if (pauseText) pauseText.innerText = 'Resume';
+    if (pauseIcon) pauseIcon.outerHTML = '<svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    if (pauseBtn) {
+      pauseBtn.style.background = 'rgba(16,185,129,0.1)';
+      pauseBtn.style.borderColor = 'rgba(16,185,129,0.3)';
+      pauseBtn.style.color = '#10b981';
+    }
+    
+    if (avatarWrapper) {
+      avatarWrapper.classList.remove('recording');
+      avatarWrapper.classList.add('paused');
+    }
+    if (avatarRecText) avatarRecText.innerText = 'PAUSED';
+    
+    if (liveLogDot) {
+      liveLogDot.style.background = '#f59e0b';
+      liveLogDot.style.animationPlayState = 'paused';
+    }
+    if (liveLogTitle) liveLogTitle.style.color = '#f59e0b';
+    if (liveTransStatus) {
+      liveTransStatus.innerText = 'TRANS. PAUSED';
+      liveTransStatus.style.color = '#f59e0b';
+    }
+    if (sessionDur) sessionDur.style.color = '#f59e0b';
+    
+    // Pause live demo stream
+    liveDemoIntervals.forEach(clearTimeout);
+  } else {
+    // RESUMED STATE
+    if (pauseText) pauseText.innerText = 'Pause';
+    if (pauseIcon) pauseIcon.outerHTML = '<svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+    if (pauseBtn) {
+      pauseBtn.style.background = 'rgba(245, 158, 11, 0.1)';
+      pauseBtn.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+      pauseBtn.style.color = '#f59e0b';
+    }
+    
+    if (avatarWrapper) {
+      avatarWrapper.classList.remove('paused');
+      avatarWrapper.classList.add('recording');
+    }
+    if (avatarRecText) avatarRecText.innerText = 'REC';
+    
+    if (liveLogDot) {
+      liveLogDot.style.background = '#ef4444';
+      liveLogDot.style.animationPlayState = 'running';
+    }
+    if (liveLogTitle) liveLogTitle.style.color = '#ef4444';
+    if (liveTransStatus) {
+      liveTransStatus.innerText = 'TRANS. ACTIVE';
+      liveTransStatus.style.color = '#71717a';
+    }
+    if (sessionDur) sessionDur.style.color = '#ef4444';
+  }
+}
+
+function toggleRecording() {
+  togglePauseRecording();
+}
+
+let liveDemoIntervals = [];
+
+function startLiveDemo() {
+  liveDemoIntervals.forEach(clearTimeout);
+  liveDemoIntervals = [];
+
+  const transcriptionArea = document.getElementById('live-transcription-feed');
+  
+  if (transcriptionArea) {
+    transcriptionArea.innerHTML = `
+      <div style="padding-bottom:10px; margin-bottom:4px; border-bottom:1px dashed #27272a;">
+        <div style="font-size:8px; color:#71717a; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.05em; font-weight:700;">● PRIOR SESSION HISTORY (BOOTH CONTEXT)</div>
+        <div style="margin-bottom:6px">[Visitor] <span style="color:#fff">"UAE residency is non-negotiable for our CISO. We need data residency proof before we even talk pricing."</span></div>
+        <div style="margin-bottom:6px">[You] <span style="color:#fff">"Understood. We have localized docs and the SOC2 UAE Annex ready to share."</span></div>
+        <div style="opacity:0.9; font-size:9.5px;"><strong style="color:#10b981">OBJECTION RESOLVED</strong>: Compliance proof delivered.</div>
+      </div>
+      <div style="font-size:8.5px; color:#10b981; text-align:center; padding:4px 0; margin-bottom:8px; background:rgba(16,185,129,0.06); border-radius:3px; border:1px solid rgba(16,185,129,0.2); letter-spacing:0.05em;">
+        ▶ LIVE AUDIO STREAM ACTIVE (LISTENING...)
+      </div>
+    `;
+  }
+
+  const events = [
+    {
+      delay: 1500,
+      target: transcriptionArea,
+      html: `<div style="margin-bottom:8px;">[Visitor] <span style="color:#fff">"We've seen a 40% jump in tracking failures in the UAE recently. The legacy EDI feeds have been... slow."</span></div>`
+    },
+    {
+      delay: 3000,
+      target: transcriptionArea,
+      html: `<div style="margin-bottom:8px; opacity:0.9; padding-left:10px; border-left:2px solid #ef4444;">[Analysis] <strong style="color:#ef4444">PAIN POINT DETECTED</strong>: Shipment Visibility in UAE.</div>`
+    },
+    {
+      delay: 5000,
+      target: transcriptionArea,
+      html: `<div style="margin-bottom:8px;">[You] <span style="color:#fff">"That's exactly why we built the API-first logistics bridge for the UAE. We can guarantee real-time updates."</span></div>`
+    },
+    {
+      delay: 6500,
+      target: transcriptionArea,
+      html: `<div style="margin-bottom:8px; opacity:0.9; padding-left:10px; border-left:2px solid #10b981;">[Analysis] <strong style="color:#10b981">VALUE PROP ALIGNED</strong>: Real-time API logistics bridge.</div>`
+    },
+    {
+      delay: 8000,
+      target: transcriptionArea,
+      html: `<div style="margin-bottom:8px;">[Visitor] <span style="color:#fff">"Can we get a technical spec on that? We'd need to see the compliance docs for the SOC2 annex."</span></div>`
+    },
+    {
+      delay: 8500,
+      customAction: () => {
+        const detectedGuestRow = document.getElementById('modal-detected-guest-row');
+        if (detectedGuestRow && !modalVisitorGuests.includes('murali.krishnan@delhivery.com')) {
+          detectedGuestRow.style.display = 'flex';
+        }
+      }
+    },
+    {
+      delay: 9500,
+      target: transcriptionArea,
+      html: `<div style="margin-bottom:4px; opacity:0.9; padding-left:10px; border-left:2px solid #818cf8;">[Analysis] <strong style="color:#818cf8">HIGH INTENT</strong>: Requested SOC2 Annex & Technical Deep-Dive.</div>`
+    }
+  ];
+
+  events.forEach(ev => {
+    const t = setTimeout(() => {
+      if (ev.customAction) {
+        ev.customAction();
+      }
+      if (ev.target && ev.html) {
+        const div = document.createElement('div');
+        div.innerHTML = ev.html;
+        ev.target.appendChild(div.firstElementChild);
+        ev.target.scrollTop = ev.target.scrollHeight;
+      }
+    }, ev.delay);
+    liveDemoIntervals.push(t);
+  });
+}
+
+
+function handleAvatarClick() {
+  const module = document.getElementById('recording-module');
+  if (!module || module.style.display === 'none') {
+    restartRecording();
+  } else {
+    togglePauseRecording();
+  }
+}
+
+function restartRecording() {
+  const module = document.getElementById('recording-module');
+  const pauseBtn = document.getElementById('pause-btn');
+  const summaryBtn = document.getElementById('stop-summary-btn');
+  const restartBtn = document.getElementById('restart-record-btn');
+  const body = document.body;
+  const avatarWrapper = document.getElementById('avatar-wrapper');
+  const avatarRecBadge = document.getElementById('avatar-rec-badge');
+  const avatarRecText = document.getElementById('avatar-rec-text');
+  
+  // 1. Show recording module
+  if (module) module.style.display = 'block';
+  body.classList.add('recording-active');
+  
+  // 2. Update controls
+  if (restartBtn) restartBtn.style.display = 'none';
+  if (pauseBtn) {
+    pauseBtn.style.display = 'inline-flex';
+    pauseBtn.style.background = 'rgba(245, 158, 11, 0.1)';
+    pauseBtn.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+    pauseBtn.style.color = '#f59e0b';
+    const pauseText = document.getElementById('pause-btn-text');
+    if (pauseText) pauseText.innerText = 'Pause';
+    const pauseIcon = document.getElementById('pause-icon');
+    if (pauseIcon) pauseIcon.outerHTML = '<svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+  }
+  if (summaryBtn) summaryBtn.style.display = 'inline-flex';
+  
+  // 3. Avatar halo ring & badge
+  if (avatarWrapper) {
+    avatarWrapper.classList.remove('paused');
+    avatarWrapper.classList.add('recording');
+  }
+  if (avatarRecBadge) avatarRecBadge.style.display = 'flex';
+  if (avatarRecText) avatarRecText.innerText = 'REC';
+  isRecordingPaused = false;
+  
+  // 4. Switch back to Intelligence tab
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const intPanel = document.getElementById('intelligence');
+  if (intPanel) intPanel.classList.add('active');
+  const intTab = document.querySelector('.tab[onclick*="intelligence"]');
+  if (intTab) intTab.classList.add('active');
+  
+  // Update Flow tabs
+  const ft1 = document.getElementById('flow-tab-1');
+  const ft2 = document.getElementById('flow-tab-2');
+  const ft3 = document.getElementById('flow-tab-3');
+  if (ft1) { ft1.style.color = '#3f3f46'; ft1.style.borderBottom = 'none'; }
+  if (ft2) { ft2.style.color = '#10b981'; ft2.style.borderBottom = '1px solid #10b981'; }
+  if (ft3) { ft3.style.color = '#3f3f46'; ft3.style.borderBottom = 'none'; }
+  
+  // Reset and restart simulation
+  updateSessionStartTime();
+  startTimer(true);
+  startLiveDemo();
+  
+  document.querySelector('.tabs').scrollIntoView({ behavior: 'smooth' });
+}
+
+function stopAndSummary() {
+  const module = document.getElementById('recording-module');
+  const pauseBtn = document.getElementById('pause-btn');
+  const summaryBtn = document.getElementById('stop-summary-btn');
+  const restartBtn = document.getElementById('restart-record-btn');
+  const body = document.body;
+  const avatarWrapper = document.getElementById('avatar-wrapper');
+  const avatarRecBadge = document.getElementById('avatar-rec-badge');
+  const summaryTabBtn = document.getElementById('summary-tab-btn');
+  const summaryPanel = document.getElementById('meeting-summary');
+  
+  if (timerInterval) clearInterval(timerInterval);
+  
+  // 1. Reset recording state
+  body.classList.remove('recording-active');
+  if (pauseBtn) pauseBtn.style.display = 'none';
+  if (summaryBtn) summaryBtn.style.display = 'none';
+  if (restartBtn) restartBtn.style.display = 'inline-flex';
+  
+  // 2. Reset avatar indicator
+  if (avatarWrapper) {
+    avatarWrapper.classList.remove('recording');
+    avatarWrapper.classList.remove('paused');
+  }
+  if (avatarRecBadge) avatarRecBadge.style.display = 'none';
+  isRecordingPaused = false;
+  
+  // 3. Update top flow tabs
+  const ft1 = document.getElementById('flow-tab-1');
+  const ft2 = document.getElementById('flow-tab-2');
+  const ft3 = document.getElementById('flow-tab-3');
+  if (ft1) { ft1.style.color = '#3f3f46'; ft1.style.borderBottom = 'none'; }
+  if (ft2) { ft2.style.color = '#3f3f46'; ft2.style.borderBottom = 'none'; }
+  if (ft3) { ft3.style.color = '#10b981'; ft3.style.borderBottom = '1px solid #10b981'; }
+  
+  // 4. Reveal & activate Summary tab + panel
+  if (summaryTabBtn) {
+    summaryTabBtn.style.display = 'block';
+  }
+  
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  
+  if (summaryPanel) {
+    summaryPanel.classList.add('active');
+  }
+  if (summaryTabBtn) {
+    summaryTabBtn.classList.add('active');
+  }
+  
+  // 5. Populate and reveal summary content instantly
+  const now = new Date();
+  const summaryDate = document.getElementById('summary-date');
+  if (summaryDate) {
+    summaryDate.textContent = now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+  
+  const summaryDur = document.getElementById('summary-duration-display');
+  if (summaryDur) {
+    const mins = Math.floor(sessionSeconds / 60);
+    const secs = sessionSeconds % 60;
+    summaryDur.textContent = `${mins}m ${secs}s`;
+  }
+  
+  const calDate = document.getElementById('cal-date');
+  if (calDate) {
+    const twoWeeks = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    calDate.value = twoWeeks.toISOString().split('T')[0];
+  }
+  
+  const loading = document.getElementById('summary-loading');
+  if (loading) loading.style.display = 'none';
+  const content = document.getElementById('summary-content');
+  if (content) content.style.display = 'block';
+  
+  setTimeout(() => {
+    document.querySelector('.tabs').scrollIntoView({ behavior: 'smooth' });
+  }, 50);
+}
+
+function addSummaryAttendeePrompt() {
+  const name = prompt("Enter attendee / colleague name or email (e.g. Murali Krishnan, CISO):");
+  if (name && name.trim()) {
+    const disp = document.getElementById('summary-attendees-display');
+    if (disp) {
+      disp.innerText += `, ${name.trim()}`;
+    }
+    if (name.includes('@')) {
+      const ccInput = document.getElementById('cc-input');
+      if (ccInput) {
+        ccInput.value = name.trim();
+        addCcRecipient();
+      }
+    }
+  }
+}
+
+function approveSummary() {
+  const summaryText = document.getElementById('summary-text');
+  const btn = document.getElementById('btn-approve-summary');
+  const status = document.getElementById('approve-status');
+  
+  // Lock the summary
+  summaryText.contentEditable = 'false';
+  summaryText.classList.add('approved');
+  btn.classList.add('done');
+  btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Approved';
+  status.textContent = 'Summary locked';
+  status.style.color = '#10b981';
+  
+  // Show Re-edit button
+  document.getElementById('btn-edit-summary').style.display = 'inline-flex';
+  
+  // Enable email and calendar sections
+  document.getElementById('email-controls').classList.remove('disabled-overlay');
+  document.getElementById('calendar-controls').classList.remove('disabled-overlay');
+  document.getElementById('btn-send-email').disabled = false;
+  document.getElementById('btn-send-cal').disabled = false;
+  
+  // Build structured email body from summary cards
+  let emailBody = '<strong>Hi Prerit,</strong><br><br>';
+  emailBody += 'Thank you for taking the time to connect with us at Adobe Summit. It was a great conversation — I\'m sharing a structured summary of what we discussed along with our committed next steps below.<br><br>';
+
+  document.querySelectorAll('#summary-text .s-card').forEach(card => {
+    const titleEl = card.querySelector('div[style*="text-transform:uppercase"]');
+    if (!titleEl) return;
+    const title = titleEl.textContent.trim();
+
+    emailBody += '<strong>' + title + '</strong><br>';
+
+    // For Key Discussion Points, lead with the primary pain point
+    if (title.toLowerCase().includes('key discussion')) {
+      const painItem = card.querySelector('.s-item-pain');
+      if (painItem) {
+        let painText = '';
+        painItem.childNodes.forEach(node => {
+          if (node.nodeType === 3) painText += node.textContent;
+          else if (!node.classList || !node.classList.contains('s-del') && !node.classList.contains('s-badge-cal')) painText += node.textContent;
+        });
+        painText = painText.trim();
+        if (painText) emailBody += '<em>Primary reason for connecting:</em> ' + painText + '<br>';
+      }
+      card.querySelectorAll('.s-item:not(.s-item-pain)').forEach(li => {
+        let text = '';
+        li.childNodes.forEach(node => {
+          if (node.nodeType === 3) text += node.textContent;
+          else if (!node.classList || !node.classList.contains('s-del') && !node.classList.contains('s-badge-cal')) text += node.textContent;
+        });
+        text = text.trim();
+        if (text) emailBody += '• ' + text + '<br>';
+      });
+      emailBody += '<br>';
+      return;
+    }
+
+    // For Open Questions, include sub-labels for each party
+    if (title.toLowerCase().includes('open questions')) {
+      const subLabels = card.querySelectorAll('div[style*="text-transform:uppercase"]');
+      const allLists = card.querySelectorAll('.s-list');
+      subLabels.forEach((label, i) => {
+        if (i === 0) return; // skip the main "Open Questions" title
+        const labelText = label.textContent.trim();
+        emailBody += '<em>' + labelText + '</em><br>';
+        if (allLists[i - 1]) {
+          allLists[i - 1].querySelectorAll('.s-item').forEach(li => {
+            let text = '';
+            li.childNodes.forEach(node => {
+              if (node.nodeType === 3) text += node.textContent;
+              else if (!node.classList || !node.classList.contains('s-del')) text += node.textContent;
+            });
+            text = text.trim();
+            if (text) emailBody += '• ' + text + '<br>';
+          });
+        }
+      });
+      emailBody += '<br>';
+      return;
+    }
+
+    // All other sections
+    card.querySelectorAll('.s-item').forEach(li => {
+      let text = '';
+      li.childNodes.forEach(node => {
+        if (node.nodeType === 3) text += node.textContent;
+        else if (!node.classList || !node.classList.contains('s-del') && !node.classList.contains('s-badge-cal')) text += node.textContent;
+      });
+      text = text.trim();
+      if (text) emailBody += '• ' + text + '<br>';
+    });
+    emailBody += '<br>';
+  });
+
+  emailBody += 'Looking forward to the next steps.<br><br>Best,<br>Arvind<br>PravahAI';
+  document.getElementById('email-body-preview').innerHTML = emailBody;
+
+  // Lock all bullet items
+  document.querySelectorAll('#summary-text .s-item').forEach(li => {
+    li.contentEditable = 'false';
+    li.style.cursor = 'default';
+  });
+  document.querySelectorAll('#summary-text .s-del').forEach(d => d.style.display = 'none');
+  document.querySelectorAll('#summary-text .s-add').forEach(b => b.style.display = 'none');
+}
+
+function reEditSummary() {
+  const summaryText = document.getElementById('summary-text');
+  const approveBtn = document.getElementById('btn-approve-summary');
+  const editBtn = document.getElementById('btn-edit-summary');
+  const status = document.getElementById('approve-status');
+  
+  // Unlock the summary
+  summaryText.classList.remove('approved');
+  approveBtn.classList.remove('done');
+  approveBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Approve Summary';
+  status.textContent = '';
+  
+  // Hide Re-edit button
+  editBtn.style.display = 'none';
+  
+  // Disable email and calendar sections
+  document.getElementById('email-controls').classList.add('disabled-overlay');
+  document.getElementById('calendar-controls').classList.add('disabled-overlay');
+  document.getElementById('btn-send-email').disabled = true;
+  document.getElementById('btn-send-cal').disabled = true;
+  
+  // Unlock all bullet items
+  document.querySelectorAll('#summary-text .s-item').forEach(li => {
+    li.contentEditable = 'true';
+    li.style.cursor = 'text';
+  });
+  document.querySelectorAll('#summary-text .s-del').forEach(d => d.style.display = 'block');
+  document.querySelectorAll('#summary-text .s-add').forEach(b => b.style.display = 'block');
+}
+
+function addBullet(btn) {
+  const list = btn.previousElementSibling;
+  const li = document.createElement('li');
+  li.className = 's-item';
+  li.contentEditable = 'true';
+  li.innerHTML = 'New item<span class="s-del" onclick="this.parentElement.remove()">×</span>';
+  list.appendChild(li);
+  // Focus and select the text for immediate editing
+  li.focus();
+  const range = document.createRange();
+  range.selectNodeContents(li.firstChild);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function addCcRecipient() {
+  const input = document.getElementById('cc-input');
+  const email = input.value.trim();
+  if (!email) return;
+  const chip = document.createElement('div');
+  chip.className = 'email-chip';
+  chip.innerHTML = email + ' <span class="email-chip-remove" onclick="this.parentElement.remove()">×</span>';
+  document.getElementById('cc-chips').appendChild(chip);
+  input.value = '';
+}
+
+function addCalGuest() {
+  const input = document.getElementById('cal-guest-input');
+  const email = input.value.trim();
+  if (!email) return;
+  const chip = document.createElement('div');
+  chip.className = 'email-chip';
+  chip.innerHTML = email + ' <span class="email-chip-remove" onclick="this.parentElement.remove(); onCalendarChange()">×</span>';
+  document.getElementById('cal-chips').appendChild(chip);
+  input.value = '';
+  onCalendarChange();
+}
+
+function sendFollowUpEmail() {
+  const btn = document.getElementById('btn-send-email');
+  const status = document.getElementById('email-status');
+  btn.disabled = true;
+  btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Sending...';
+  status.textContent = '';
+  setTimeout(() => {
+    btn.classList.add('sent');
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Sent';
+    status.textContent = 'Email delivered via connected integration';
+    status.style.color = '#10b981';
+  }, 1500);
+}
+
+function sendCalendarInvite() {
+  const btn = document.getElementById('btn-send-cal');
+  const status = document.getElementById('cal-status');
+  const isUpdate = btn.innerText.includes('Update');
+  
+  btn.disabled = true;
+  btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> ${isUpdate ? 'Updating...' : 'Sending...'}`;
+  status.textContent = '';
+  
+  setTimeout(() => {
+    btn.classList.add('sent');
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Sent';
+    status.textContent = isUpdate ? 'Updated calendar invite sent to all guests' : 'Calendar invite sent to all guests';
+    status.style.color = '#10b981';
+    isInviteSentGlobal = true;
+  }, 1500);
+}
+
+function onCalendarChange() {
+  if (!isInviteSentGlobal) return;
+  
+  const btn = document.getElementById('btn-send-cal');
+  const status = document.getElementById('cal-status');
+  
+  btn.classList.remove('sent');
+  btn.disabled = false;
+  btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Update Invite';
+  status.textContent = 'Changes detected. Ready to update.';
+  status.style.color = '#71717a';
+}
+
+// MODAL & GUEST / CALENDAR INVITE CONTROLLER
+let modalVisitorGuests = ['prerit.khandelwal@delhivery.com'];
+let modalOurGuests = ['arvind@pravahai.com', 'raj.mehta@pravahai.com'];
+let isInviteDispatched = false;
+
+function openInviteModal() {
+  const modal = document.getElementById('invite-modal');
+  if (!modal) return;
+  
+  // 1. Ensure default date is populated (+14 days)
+  const dateInput = document.getElementById('modal-cal-date');
+  if (dateInput && !dateInput.value) {
+    const d = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    dateInput.value = d.toISOString().split('T')[0];
+  }
+  
+  // 2. Sync visitor primary email
+  const displayEmail = document.getElementById('display-email')?.innerText.trim() || 'prerit.khandelwal@delhivery.com';
+  if (!modalVisitorGuests.includes(displayEmail)) {
+    modalVisitorGuests = [displayEmail, ...modalVisitorGuests.filter(g => g !== displayEmail)];
+  }
+  
+  renderModalGuests();
+  modal.style.display = 'flex';
+}
+
+function closeInviteModal() {
+  const modal = document.getElementById('invite-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function renderModalGuests() {
+  // Visitor chips
+  const visitorContainer = document.getElementById('modal-visitor-chips');
+  if (visitorContainer) {
+    visitorContainer.innerHTML = modalVisitorGuests.map((email, idx) => {
+      const isPrimary = idx === 0;
+      return `<span style="font-size:11px; color:#fff; background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:3px; border:1px solid #27272a; font-family:'JetBrains Mono',monospace; display:inline-flex; align-items:center; gap:5px;">
+        ${email} ${isPrimary ? '<strong style="color:#10b981;">(Primary)</strong>' : `<span onclick="removeVisitorGuest('${email}')" style="color:#ef4444; cursor:pointer; font-weight:800; margin-left:3px;" title="Remove">×</span>`}
+      </span>`;
+    }).join('');
+  }
+  
+  // Our chips
+  const ourContainer = document.getElementById('modal-our-chips');
+  if (ourContainer) {
+    ourContainer.innerHTML = modalOurGuests.map((email, idx) => {
+      const role = idx === 0 ? '<strong style="color:#818cf8;">(Host / Rep)</strong>' : (idx === 1 ? '<span style="color:#71717a;">(Account Owner)</span>' : '');
+      const canRemove = idx > 0;
+      return `<span style="font-size:11px; color:#fff; background:rgba(255,255,255,0.03); padding:3px 8px; border-radius:3px; border:1px solid #27272a; font-family:'JetBrains Mono',monospace; display:inline-flex; align-items:center; gap:5px;">
+        ${email} ${role} ${canRemove ? `<span onclick="removeOurGuest('${email}')" style="color:#ef4444; cursor:pointer; font-weight:800; margin-left:3px;" title="Remove">×</span>` : ''}
+      </span>`;
+    }).join('');
+  }
+}
+
+function addVisitorGuestFromModal() {
+  const input = document.getElementById('modal-add-visitor-input');
+  const val = input ? input.value.trim() : '';
+  if (!val) return;
+  if (!modalVisitorGuests.includes(val)) {
+    modalVisitorGuests.push(val);
+    renderModalGuests();
+  }
+  input.value = '';
+}
+
+function removeVisitorGuest(email) {
+  modalVisitorGuests = modalVisitorGuests.filter(e => e !== email);
+  renderModalGuests();
+}
+
+function addOurGuestFromModal() {
+  const input = document.getElementById('modal-add-our-input');
+  const val = input ? input.value.trim() : '';
+  if (!val) return;
+  if (!modalOurGuests.includes(val)) {
+    modalOurGuests.push(val);
+    renderModalGuests();
+  }
+  input.value = '';
+}
+
+function removeOurGuest(email) {
+  modalOurGuests = modalOurGuests.filter(e => e !== email);
+  renderModalGuests();
+}
+
+function addDetectedGuestToModal(email, label) {
+  if (!modalVisitorGuests.includes(email)) {
+    modalVisitorGuests.push(email);
+    renderModalGuests();
+  }
+  const row = document.getElementById('modal-detected-guest-row');
+  if (row) row.style.display = 'none';
+}
+
+function dispatchModalInvite() {
+  const btn = document.getElementById('btn-dispatch-modal-invite');
+  const txt = document.getElementById('modal-dispatch-text');
+  if (btn) {
+    btn.style.opacity = '0.8';
+    btn.disabled = true;
+  }
+  if (txt) txt.innerText = 'Sending Invites...';
+  
+  setTimeout(() => {
+    isInviteDispatched = true;
+    if (txt) txt.innerText = '✓ Invite Dispatched!';
+    if (btn) btn.style.background = '#059669';
+    
+    // Update Header Button
+    const heroBtn = document.getElementById('hero-send-invite-btn');
+    const heroTxt = document.getElementById('hero-send-invite-text');
+    if (heroBtn) {
+      heroBtn.style.background = 'rgba(16,185,129,0.15)';
+      heroBtn.style.border = '1px solid rgba(16,185,129,0.4)';
+      heroBtn.style.color = '#10b981';
+    }
+    const calDateVal = document.getElementById('modal-cal-date')?.value || '';
+    const dateFormatted = calDateVal ? new Date(calDateVal).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Scheduled';
+    if (heroTxt) {
+      heroTxt.innerText = `✓ Invite Sent (${dateFormatted})`;
+    }
+    
+    // Sync to Section 3 Meeting Summary
+    const summaryAttendees = document.getElementById('summary-attendees-display');
+    if (summaryAttendees) {
+      summaryAttendees.innerText = modalVisitorGuests.join(', ');
+    }
+    
+    // Sync to Section 3 CC field
+    modalVisitorGuests.slice(1).forEach(email => {
+      const ccInput = document.getElementById('cc-input');
+      if (ccInput) {
+        ccInput.value = email;
+        addCcRecipient();
+      }
+    });
+    
+    // Sync to Section 3 Calendar button
+    const sec3Btn = document.getElementById('btn-send-cal');
+    const sec3Status = document.getElementById('cal-status');
+    if (sec3Btn) {
+      sec3Btn.classList.add('sent');
+      sec3Btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Invite Sent';
+    }
+    if (sec3Status) {
+      sec3Status.textContent = `Invite active for ${modalVisitorGuests.length + modalOurGuests.length} attendees.`;
+      sec3Status.style.color = '#10b981';
+    }
+    
+    setTimeout(() => {
+      closeInviteModal();
+      if (btn) {
+        btn.style.opacity = '1';
+        btn.disabled = false;
+        btn.style.background = '#10b981';
+      }
+      if (txt) txt.innerText = 'Send Calendar Invite';
+    }, 600);
+  }, 750);
+}
+
+// EMAIL EDIT & CRM SYNC LOGIC
+function toggleEmailEdit(show) {
+  const resolvedView = document.getElementById('email-resolved-view');
+  const editView = document.getElementById('email-edit-view');
+  const badge = document.getElementById('email-status-badge');
+  const dot = document.getElementById('email-dot');
+  
+  if (show) {
+    resolvedView.style.display = 'none';
+    editView.style.display = 'block';
+    badge.innerText = 'EDITING / VERIFY';
+    badge.className = 'bc-badge y';
+    dot.className = 'bc-dot y';
+    const currentEmail = document.getElementById('display-email').innerText.trim();
+    document.getElementById('custom-verify-email').value = currentEmail;
+  } else {
+    resolvedView.style.display = 'block';
+    editView.style.display = 'none';
+    badge.innerText = 'VERIFIED (ENRICHED)';
+    badge.className = 'bc-badge g';
+    dot.className = 'bc-dot g';
+  }
+}
+
+function selectPredEmail(email, el) {
+  document.querySelectorAll('.email-pred-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('custom-verify-email').value = email;
+}
+
+function confirmAndSyncCRM() {
+  const btn = document.getElementById('btn-verify-sync');
+  const input = document.getElementById('custom-verify-email');
+  const verifiedEmail = input.value.trim() || 'prerit.khandelwal@delhivery.com';
+  
+  btn.innerHTML = '<span>Syncing CRM...</span>';
+  btn.style.opacity = '0.8';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    // 1. Update Display Email and Source Text
+    document.getElementById('display-email').innerText = verifiedEmail;
+    document.getElementById('email-source-text').innerText = 'Verified & Synced · 100% Confidence';
+    
+    // 2. Switch views back & set badge to green
+    const resolvedView = document.getElementById('email-resolved-view');
+    const editView = document.getElementById('email-edit-view');
+    resolvedView.style.display = 'block';
+    editView.style.display = 'none';
+    
+    const badge = document.getElementById('email-status-badge');
+    badge.innerText = 'VERIFIED';
+    badge.className = 'bc-badge g';
+    const dot = document.getElementById('email-dot');
+    dot.className = 'bc-dot g';
+    
+    // 3. Trigger Flash Animation on CRM Card
+    const crmCard = document.getElementById('bc-crm-card');
+    crmCard.classList.remove('synced-flash');
+    void crmCard.offsetWidth; // trigger reflow
+    crmCard.classList.add('synced-flash');
+    
+    // 4. Update CRM card details to show live pulled data
+    document.getElementById('crm-badge').innerText = 'SYNCED · EVALUATION';
+    document.getElementById('crm-badge').className = 'bc-badge g';
+    document.getElementById('crm-dot').className = 'bc-dot g';
+    document.getElementById('crm-owner-badge').innerText = 'OWNER: RAJ MEHTA';
+    document.getElementById('crm-owner-badge').className = 'bc-badge g';
+    document.getElementById('crm-main-val').innerHTML = '<span style="color:#10b981">$120,000 ARR Opportunity (Synced)</span>';
+    document.getElementById('crm-sub-val').innerHTML = `
+      <div style="color:#e4e4e7; line-height:1.35;"><span style="color:#10b981; font-weight:700;">1. [What Happened]</span> Demo 45d ago with Raj; paused awaiting UAE tracking API spec & SOC2 Annex</div>
+      <div style="color:#a1a1aa; line-height:1.35;"><span style="color:#10b981; font-weight:700;">2. [Next CRM Step]</span> Clear security review & schedule technical deep-dive pilot</div>
+    `;
+    
+    btn.innerHTML = '<span>Save & Sync CRM</span>';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }, 650);
+}
+
+// P0 CAPTURE & AUTO-RECORD LOGIC
+function handleManualSubmit() {
+  const name = document.getElementById('manual-name').value.trim();
+  const company = document.getElementById('manual-company').value.trim();
+  
+  if (!name || !company) {
+    alert('Name and Company are mandatory for identity resolution.');
+    return;
+  }
+  
+  startIdentification('Manual Form');
+}
+
+function startIdentification(method) {
+  const overlay = document.getElementById('scanning-overlay');
+  const text = document.getElementById('scanning-text');
+  overlay.style.display = 'flex';
+  
+  if (method === 'Manual Form') {
+    const name = document.getElementById('manual-name').value.trim();
+    text.innerText = `Identifying ${name}...`;
+  } else {
+    text.innerText = `Scanning ${method}...`;
+  }
+  
+  // Simulate identity resolution
+  setTimeout(() => {
+    document.getElementById('capture-screen').style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    document.getElementById('capture-screen').style.opacity = '0';
+    document.getElementById('capture-screen').style.transform = 'scale(1.03)';
+    
+    setTimeout(() => {
+      document.getElementById('capture-screen').style.display = 'none';
+      document.getElementById('main-app-container').style.display = 'block';
+      
+      const emailSourceEl = document.getElementById('email-source-text');
+      if (emailSourceEl) {
+        if (method === 'Business Card' || method === 'Business Card OCR') {
+          emailSourceEl.innerText = 'From Business Card · 98% Confidence';
+        } else {
+          emailSourceEl.innerText = '94% Confidence';
+        }
+      }
+      
+      // Auto-trigger recording immediately on scan resolution
+      autoStartLiveRecording();
+    }, 400);
+  }, 1600);
+}
+
+function autoStartLiveRecording() {
+  const module = document.getElementById('recording-module');
+  const pauseBtn = document.getElementById('pause-btn');
+  const summaryBtn = document.getElementById('stop-summary-btn');
+  const body = document.body;
+  const avatarWrapper = document.getElementById('avatar-wrapper');
+  const avatarRecBadge = document.getElementById('avatar-rec-badge');
+  const avatarRecText = document.getElementById('avatar-rec-text');
+  
+  // Auto-start recording
+  module.style.display = 'block';
+  body.classList.add('recording-active');
+  if (pauseBtn) {
+    pauseBtn.style.display = 'inline-flex';
+    pauseBtn.style.background = 'rgba(245, 158, 11, 0.1)';
+    pauseBtn.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+    pauseBtn.style.color = '#f59e0b';
+    document.getElementById('pause-btn-text').innerText = 'Pause';
+    document.getElementById('pause-icon').outerHTML = '<svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+  }
+  if (summaryBtn) summaryBtn.style.display = 'inline-flex';
+  
+  if (avatarWrapper) {
+    avatarWrapper.classList.remove('paused');
+    avatarWrapper.classList.add('recording');
+  }
+  if (avatarRecBadge) avatarRecBadge.style.display = 'flex';
+  if (avatarRecText) avatarRecText.innerText = 'REC';
+  isRecordingPaused = false;
+  
+  updateSessionStartTime();
+  startTimer(true);
+  
+  // Switch back to Intelligence tab and P2 flow tab
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('intelligence').classList.add('active');
+  document.querySelector('.tab[onclick*="intelligence"]').classList.add('active');
+  
+  // Flow tabs
+  document.getElementById('flow-tab-1').style.color = '#3f3f46';
+  document.getElementById('flow-tab-1').style.borderBottom = 'none';
+  const ft2 = document.getElementById('flow-tab-2');
+  ft2.style.color = '#10b981';
+  ft2.style.borderBottom = '1px solid #10b981';
+  const ft3 = document.getElementById('flow-tab-3');
+  ft3.style.color = '#3f3f46';
+  ft3.style.borderBottom = 'none';
+
+  // Start live transcript simulation stream
+  startLiveDemo();
+}
+</script>
+
+<!-- CALENDAR INVITE POPUP MODAL -->
+<div id="invite-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(6px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#111114; border:1px solid #27272a; border-radius:10px; max-width:540px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,0.8); overflow:hidden;">
+    
+    <!-- Modal Header -->
+    <div style="padding:16px 20px; border-bottom:1px solid #27272a; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="bc-dot g" style="width:7px; height:7px;"></span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; color:#fff; letter-spacing:0.05em; text-transform:uppercase;">SCHEDULE & SEND INVITE</span>
+      </div>
+      <button onclick="closeInviteModal()" style="background:none; border:none; color:#71717a; font-size:16px; cursor:pointer; padding:2px 6px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'">✕</button>
+    </div>
+
+    <!-- Modal Body -->
+    <div style="padding:20px; display:flex; flex-direction:column; gap:16px; max-height:80vh; overflow-y:auto;" class="custom-scroll">
+      
+      <!-- Event Title & Time -->
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <label style="font-size:10px; font-family:'JetBrains Mono',monospace; color:#71717a; text-transform:uppercase; font-weight:700;">Meeting Topic</label>
+        <input type="text" id="modal-cal-title" value="PravahAI × Delhivery — Technical Deep-Dive" class="bc-input" style="padding:8px 10px; font-size:12px;">
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:12px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-size:10px; font-family:'JetBrains Mono',monospace; color:#71717a; text-transform:uppercase; font-weight:700;">Date</label>
+          <input type="date" id="modal-cal-date" class="bc-input" style="padding:8px 10px; font-size:11px;">
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-size:10px; font-family:'JetBrains Mono',monospace; color:#71717a; text-transform:uppercase; font-weight:700;">Time</label>
+          <select id="modal-cal-time" class="bc-input" style="padding:8px 10px; font-size:11px; appearance:auto; cursor:pointer;">
+            <option value="10:00" selected>10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="14:00">02:00 PM</option>
+            <option value="15:30">03:30 PM</option>
+            <option value="16:00">04:00 PM</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Invitees (Both Sides) -->
+      <div style="border-top:1px solid #27272a; padding-top:14px; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:10px; font-family:'JetBrains Mono',monospace; color:#71717a; text-transform:uppercase; font-weight:700;">GUESTS & ATTENDEES (BOTH SIDES)</span>
+          <span style="font-size:9px; color:#10b981; font-family:'JetBrains Mono',monospace;">Auto-Synced</span>
+        </div>
+
+        <!-- Visitor Side (Delhivery) -->
+        <div style="background:rgba(255,255,255,0.02); border:1px solid #27272a; border-radius:6px; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:10px; color:#a1a1aa; font-weight:700;">Delhivery (Visitor Side):</span>
+            <span style="font-size:9px; color:#71717a;">Primary + Colleagues</span>
+          </div>
+          <div id="modal-visitor-chips" style="display:flex; flex-wrap:wrap; gap:6px;">
+            <span style="font-size:11px; color:#fff; background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:3px; border:1px solid #27272a; font-family:'JetBrains Mono',monospace;">
+              prerit.khandelwal@delhivery.com <strong style="color:#10b981;">(Primary)</strong>
+            </span>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:2px;">
+            <input type="text" id="modal-add-visitor-input" placeholder="Add colleague (e.g. murali.k@delhivery.com)" class="bc-input" style="padding:4px 8px; font-size:10px;" onkeydown="if(event.key==='Enter'){addVisitorGuestFromModal(); event.preventDefault();}">
+            <button onclick="addVisitorGuestFromModal()" class="bc-sync-btn" style="padding:4px 10px; font-size:9px;">+ Add</button>
+          </div>
+          <!-- Auto-detected suggestion chip if CISO mentioned -->
+          <div id="modal-detected-guest-row" style="display:none; align-items:center; gap:6px; margin-top:2px;">
+            <span style="font-size:9px; color:#71717a;">Detected from call:</span>
+            <button onclick="addDetectedGuestToModal('murali.krishnan@delhivery.com', 'Murali Krishnan (CISO)')" style="background:rgba(129,140,248,0.1); border:1px dashed rgba(129,140,248,0.4); color:#818cf8; font-size:9px; font-family:'JetBrains Mono',monospace; padding:2px 6px; border-radius:3px; cursor:pointer;">+ Murali (CISO)</button>
+          </div>
+        </div>
+
+        <!-- Our Side (Pravah AI) -->
+        <div style="background:rgba(255,255,255,0.02); border:1px solid #27272a; border-radius:6px; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:10px; color:#a1a1aa; font-weight:700;">PravahAI (Our Side):</span>
+            <span style="font-size:9px; color:#71717a;">Rep + Internal Team</span>
+          </div>
+          <div id="modal-our-chips" style="display:flex; flex-wrap:wrap; gap:6px;">
+            <span style="font-size:11px; color:#fff; background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:3px; border:1px solid #27272a; font-family:'JetBrains Mono',monospace;">
+              arvind@pravahai.com <strong style="color:#818cf8;">(Host / Rep)</strong>
+            </span>
+            <span style="font-size:11px; color:#a1a1aa; background:rgba(255,255,255,0.03); padding:3px 8px; border-radius:3px; border:1px solid #27272a; font-family:'JetBrains Mono',monospace;">
+              raj.mehta@pravahai.com <span style="color:#71717a;">(Account Owner)</span>
+            </span>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:2px;">
+            <input type="text" id="modal-add-our-input" placeholder="Add teammate (e.g. architect@pravahai.com)" class="bc-input" style="padding:4px 8px; font-size:10px;" onkeydown="if(event.key==='Enter'){addOurGuestFromModal(); event.preventDefault();}">
+            <button onclick="addOurGuestFromModal()" class="bc-sync-btn" style="padding:4px 10px; font-size:9px;">+ Add</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div style="padding:14px 20px; border-top:1px solid #27272a; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3);">
+      <button onclick="closeInviteModal()" style="background:none; border:1px solid #27272a; color:#a1a1aa; font-family:'JetBrains Mono',monospace; font-size:10px; padding:8px 14px; border-radius:4px; cursor:pointer;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a1a1aa'">Cancel</button>
+      <button onclick="dispatchModalInvite()" id="btn-dispatch-modal-invite" style="background:#10b981; color:#000; border:none; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; padding:8px 20px; border-radius:4px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='#34d399'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        <span id="modal-dispatch-text">Send Calendar Invite</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+</div> <!-- Close main-app-container -->
+</body></html>
+
