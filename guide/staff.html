@@ -38,8 +38,14 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 .card h2{margin:4px 0 8px;font-size:24px}.card p{color:var(--mut);margin:0 0 14px}.card b{color:var(--acc2);font-size:14px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.toc{display:none}.step-body{grid-template-columns:1fr}}
 @media(max-width:560px){main{padding:24px 16px 60px}.step{padding:16px}.defs{grid-template-columns:1fr}.defs dt{border-bottom:0;padding-bottom:0}}
+
+.bigvid{max-width:960px;margin:24px auto 12px}.bigvid video{width:100%;border-radius:12px;background:#000}
+.chips{display:flex;flex-wrap:wrap;gap:8px;max-width:960px;margin:0 auto 28px;padding:0 16px}
+.chip,.seek{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:999px;padding:6px 12px;font-size:13px}
+.chip span{display:inline-block;min-width:18px;margin-right:6px;font-weight:700;color:#3b82f6}
+.seek:hover{border-color:#3b82f6}
 </style></head><body>
-<header class="top"><a class="brand" href="index.html"><i></i>PravahAI</a><nav><a href="admin.html">Admin guide</a><a href="staff.html" class="on">Booth staff guide</a></nav></header>
+<header class="top"><a class="brand" href="index.html"><i></i>PravahAI</a><nav><a href="admin.html">Admin guide</a><a href="staff.html" class="on">Booth staff guide</a><a href="fix.html">Fix problems</a></nav></header>
 <main><div class="hero"><p class="eyebrow">For booth staff</p><h1>Booth staff guide</h1><p class="lead">This guide takes a booth rep from first sign in to the first scan, and through the follow up afterwards. It takes about 10 minutes. Your admin sets up the event first. If you cannot see your event, ask them.</p>
 <div class="meta"><span>6 short videos</span><span>6:31 of video</span><span id="prog">0 of 6 done</span></div><div class="bar"><div id="barf"></div></div></div>
 <div class="layout"><aside class="toc"><b>Steps</b><a href="#mail"><span>1</span>Connect Gmail or Outlook</a><a href="#profile"><span>2</span>Complete your profile and signature</a><a href="#scan"><span>3</span>Scan your first badge</a><a href="#page"><span>4</span>Read the visitor page</a><a href="#summary"><span>5</span>Approve the summary and get the email draft</a><a href="#send"><span>6</span>Send the email or schedule it</a></aside><div class="content"><section class="grp"><h2>Get ready</h2><article class="step" id="mail" data-key="staff-mail">
@@ -92,5 +98,6 @@ var boxes=[].slice.call(document.querySelectorAll('.chk'));var steps=document.qu
 function k(b){return b.dataset.key||b.closest('.step').dataset.key}
 function upd(){var d=0;steps.forEach(function(s){var c=s.querySelector('.chk').checked;s.classList.toggle('is-done',c);if(c)d++});
 document.getElementById('prog').textContent=d+' of '+steps.length+' done';document.getElementById('barf').style.width=(100*d/steps.length)+'%'}
+document.querySelectorAll('.seek').forEach(function(b){b.addEventListener('click',function(){var v=document.getElementById('fixv');if(!v)return;v.currentTime=parseFloat(b.dataset.t);v.play();v.scrollIntoView({block:'center',behavior:'smooth'})})});
 boxes.forEach(function(b){b.checked=!!st[k(b)];b.addEventListener('change',function(){st[k(b)]=b.checked;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}upd()})});upd();
 </script></body></html>

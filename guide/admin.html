@@ -38,8 +38,14 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 .card h2{margin:4px 0 8px;font-size:24px}.card p{color:var(--mut);margin:0 0 14px}.card b{color:var(--acc2);font-size:14px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.toc{display:none}.step-body{grid-template-columns:1fr}}
 @media(max-width:560px){main{padding:24px 16px 60px}.step{padding:16px}.defs{grid-template-columns:1fr}.defs dt{border-bottom:0;padding-bottom:0}}
+
+.bigvid{max-width:960px;margin:24px auto 12px}.bigvid video{width:100%;border-radius:12px;background:#000}
+.chips{display:flex;flex-wrap:wrap;gap:8px;max-width:960px;margin:0 auto 28px;padding:0 16px}
+.chip,.seek{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:999px;padding:6px 12px;font-size:13px}
+.chip span{display:inline-block;min-width:18px;margin-right:6px;font-weight:700;color:#3b82f6}
+.seek:hover{border-color:#3b82f6}
 </style></head><body>
-<header class="top"><a class="brand" href="index.html"><i></i>PravahAI</a><nav><a href="admin.html" class="on">Admin guide</a><a href="staff.html">Booth staff guide</a></nav></header>
+<header class="top"><a class="brand" href="index.html"><i></i>PravahAI</a><nav><a href="admin.html" class="on">Admin guide</a><a href="staff.html">Booth staff guide</a><a href="fix.html">Fix problems</a></nav></header>
 <main><div class="hero"><p class="eyebrow">For admins</p><h1>Admin guide</h1><p class="lead">This guide takes an admin from an empty workspace to a team that is ready to scan. Do steps 1 to 4 once for the organization. Do steps 5 and 6 for every event. It takes about 25 minutes.</p>
 <div class="meta"><span>6 short videos</span><span>6:06 of video</span><span id="prog">0 of 6 done</span></div><div class="bar"><div id="barf"></div></div></div>
 <div class="layout"><aside class="toc"><b>Steps</b><a href="#team"><span>1</span>Add your team</a><a href="#business"><span>2</span>Describe your business</a><a href="#questions"><span>3</span>Set the standard questions</a><a href="#crm"><span>4</span>Connect your CRM and Slack</a><a href="#event"><span>5</span>Create the event</a><a href="#event-settings"><span>6</span>Set the event&#x27;s questions and scan defaults</a></aside><div class="content"><section class="grp"><h2>Once for your organization</h2><article class="step" id="team" data-key="admin-team">
@@ -92,5 +98,6 @@ var boxes=[].slice.call(document.querySelectorAll('.chk'));var steps=document.qu
 function k(b){return b.dataset.key||b.closest('.step').dataset.key}
 function upd(){var d=0;steps.forEach(function(s){var c=s.querySelector('.chk').checked;s.classList.toggle('is-done',c);if(c)d++});
 document.getElementById('prog').textContent=d+' of '+steps.length+' done';document.getElementById('barf').style.width=(100*d/steps.length)+'%'}
+document.querySelectorAll('.seek').forEach(function(b){b.addEventListener('click',function(){var v=document.getElementById('fixv');if(!v)return;v.currentTime=parseFloat(b.dataset.t);v.play();v.scrollIntoView({block:'center',behavior:'smooth'})})});
 boxes.forEach(function(b){b.checked=!!st[k(b)];b.addEventListener('change',function(){st[k(b)]=b.checked;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}upd()})});upd();
 </script></body></html>
