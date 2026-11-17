@@ -44,8 +44,11 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 .chip,.seek{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:999px;padding:6px 12px;font-size:13px}
 .chip span{display:inline-block;min-width:18px;margin-right:6px;font-weight:700;color:#3b82f6}
 .seek:hover{border-color:#3b82f6}
+.subgrp{font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted,#8a94a8);margin:28px 0 10px}
+.tocsub{display:block;margin:18px 0 6px}
+.grp>.why{margin:0 0 14px}
 </style></head><body>
-<header class="top"><a class="brand" href="index.html"><i></i>PravahAI</a><nav><a href="admin.html" class="on">Admin guide</a><a href="staff.html">Booth staff guide</a><a href="fix.html">Fix problems</a></nav></header>
+<header class="top"><a class="brand" href="index.html"><i></i>PravahAI</a><nav><a href="admin.html" class="on">Admin guide</a><a href="staff.html">Booth staff guide</a></nav></header>
 <main><div class="hero"><p class="eyebrow">For admins</p><h1>Admin guide</h1><p class="lead">This guide takes an admin from an empty workspace to a team that is ready to scan. Do steps 1 to 4 once for the organization. Do steps 5 and 6 for every event. It takes about 25 minutes.</p>
 <div class="meta"><span>6 short videos</span><span>6:06 of video</span><span id="prog">0 of 6 done</span></div><div class="bar"><div id="barf"></div></div></div>
 <div class="layout"><aside class="toc"><b>Steps</b><a href="#team"><span>1</span>Add your team</a><a href="#business"><span>2</span>Describe your business</a><a href="#questions"><span>3</span>Set the standard questions</a><a href="#crm"><span>4</span>Connect your CRM and Slack</a><a href="#event"><span>5</span>Create the event</a><a href="#event-settings"><span>6</span>Set the event&#x27;s questions and scan defaults</a></aside><div class="content"><section class="grp"><h2>Once for your organization</h2><article class="step" id="team" data-key="admin-team">
@@ -94,7 +97,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 <p class="swap">Looking for the other guide? <a href="staff.html">Booth staff guide</a></p></div></div></main>
 <script>
 var KEY='pravah_guide_admin',st={};try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
-var boxes=[].slice.call(document.querySelectorAll('.chk'));var steps=document.querySelectorAll('.step');
+var boxes=[].slice.call(document.querySelectorAll('.chk'));var steps=document.querySelectorAll('.step:not(.nochk)');
 function k(b){return b.dataset.key||b.closest('.step').dataset.key}
 function upd(){var d=0;steps.forEach(function(s){var c=s.querySelector('.chk').checked;s.classList.toggle('is-done',c);if(c)d++});
 document.getElementById('prog').textContent=d+' of '+steps.length+' done';document.getElementById('barf').style.width=(100*d/steps.length)+'%'}
