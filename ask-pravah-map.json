@@ -68,7 +68,7 @@
    "say": [
     "create an event",
     "add a new event",
-    "new show"
+    "create a new show"
    ],
    "flows": [
     {
@@ -162,7 +162,64 @@
       "icp leads only",
       "only icp",
       "show icp leads",
-      "show my ICP visitors"
+      "show my ICP visitors",
+      "show the icps",
+      "icps"
+     ]
+    },
+    {
+     "name": "Filter by event",
+     "choose": "All events",
+     "options": "events",
+     "say": [
+      "filter by event",
+      "only this event",
+      "from this event"
+     ]
+    },
+    {
+     "name": "Filter by rating",
+     "choose": "Any rating",
+     "options": [
+      "Hot",
+      "Warm",
+      "Cold",
+      "Not rated"
+     ],
+     "say": [
+      "filter by rating",
+      "only hot",
+      "hot leads",
+      "warm leads",
+      "cold leads"
+     ]
+    },
+    {
+     "name": "Filter by intent",
+     "choose": "Any intent",
+     "options": [
+      "High intent",
+      "Moderate intent"
+     ],
+     "say": [
+      "filter by intent",
+      "high intent",
+      "moderate intent"
+     ]
+    },
+    {
+     "name": "Filter by follow-up",
+     "choose": "Any follow-up",
+     "options": [
+      "Followed up",
+      "Not followed up",
+      "No conversation yet"
+     ],
+     "say": [
+      "filter by follow up",
+      "not followed up",
+      "followed up",
+      "no conversation yet"
      ]
     },
     {
@@ -607,6 +664,15 @@
       "answered questions",
       "what we answered"
      ]
+    },
+    {
+     "name": "Filter by event",
+     "choose": "All events",
+     "options": "events",
+     "say": [
+      "questions from this event",
+      "filter by event"
+     ]
     }
    ],
    "flows": [
@@ -725,6 +791,15 @@
      "say": [
       "show followed up",
       "already followed up"
+     ]
+    },
+    {
+     "name": "Filter by event",
+     "choose": "All events",
+     "options": "events",
+     "say": [
+      "stale leads from this event",
+      "filter by event"
      ]
     }
    ],
@@ -851,10 +926,13 @@
    "name": "Event home",
    "route": "/events/:slug",
    "level": "event",
-   "does": "The event's overview.",
+   "does": "The event's overview, which opens on its visitors (Registrations).",
    "say": [
     "open the event",
-    "go to the live event"
+    "go to the live event",
+    "go to an event",
+    "open an event",
+    "go to the event"
    ],
    "verified": true,
    "in": [
@@ -885,18 +963,24 @@
     },
     {
      "name": "Filter by rating",
-     "click": "Any rating",
-     "done": "Pick hot, warm or cold.",
+     "choose": "Any rating",
+     "options": [
+      "Hot",
+      "Warm",
+      "Cold",
+      "Not rated"
+     ],
      "say": [
       "filter by rating",
       "only hot leads",
-      "show hot leads"
+      "show hot leads",
+      "warm leads",
+      "cold leads"
      ]
     },
     {
      "name": "Filter by source",
-     "click": "All sources",
-     "done": "Pick the source.",
+     "choose": "All sources",
      "say": [
       "filter by source",
       "only scanned"

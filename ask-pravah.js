@@ -217,8 +217,9 @@
   function valueIn(q) { var m = q.match(/\b(?:to|as|is|with)\s+(.{2,})$/i); return m ? m[1].trim().replace(/[.]$/, "") : null; }
 
   function openScreen(sc, q) {
-    if (sc.level === "event") return resolveEvent(q, function (slug) { go(fill(sc.route, slug)); say("Opened " + sc.name + " for " + eventName(slug) + "."); afterOpen(sc, q); });
-    go(sc.route); say("Opened " + sc.name + "."); afterOpen(sc, q);
+    var then = function (dest, label) { waitFor(function () { return route() === dest; }).then(function () { setTimeout(function () { if (!applyHere(sc, q, label + ". ")) say(label + "."); afterOpen(sc, q); }, 500); }); };
+    if (sc.level === "event") return resolveEvent(q, function (slug) { var d = fill(sc.route, slug); go(d); then(d, "Opened " + sc.name + " for " + eventName(slug)); });
+    go(sc.route); then(sc.route, "Opened " + sc.name);
   }
   function afterOpen(sc, q) {
     /* a field named on the screen just opened (for example the ICP) */
@@ -415,6 +416,49 @@
   }
 
 
+
+  /* ---------- dropdown filters on the screen (choose actions in the map) ---------- */
+  function optionsFor(a) { return a.options === "events" ? events().map(function (e) { return e.name; }) : (a.options || []); }
+  function findBox(a) {
+    var opts = optionsFor(a).map(norm);
+    return [].slice.call(document.querySelectorAll("[role=combobox],select")).filter(visible).filter(function (b) {
+      var t = norm(b.innerText || (b.options && b.options[b.selectedIndex] && b.options[b.selectedIndex].text));
+      return t === norm(a.choose) || opts.indexOf(t) >= 0;
+    })[0] || null;
+  }
+  function wantedOption(a, q) {
+    if (a.options === "events") { var ne = namedEvents(q); return ne.length === 1 ? ne[0].name : null; }
+    var lq = " " + q.toLowerCase().replace(/[^a-z0-9 ]/g, " ") + " ";
+    var hit = optionsFor(a).slice().sort(function (x, y) { return y.length - x.length; }).filter(function (o) { return lq.indexOf(" " + o.toLowerCase().replace(/[^a-z0-9 ]/g, " ") + " ") >= 0; })[0];
+    return hit || null;
+  }
+  function choose(a, opt) {
+    var box = findBox(a);
+    if (!box) return Promise.resolve(false);
+    if (norm(box.innerText) === norm(opt)) return Promise.resolve(true);
+    box.click();
+    return waitFor(function () { return [].slice.call(document.querySelectorAll("[role=option]")).filter(function (o) { return visible(o) && norm(o.innerText) === norm(opt); })[0]; }, 2000).then(function (o) { if (o) { o.click(); return true; } document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })); return false; });
+  }
+  /* everything the user said that matches something on this screen, applied together */
+  function screenMatches(sc, q) {
+    var jobs = [];
+    (sc.actions || []).forEach(function (a) {
+      if (a.choose) { var o = wantedOption(a, q); if (o) jobs.push({ label: o, run: function () { return choose(a, o); } }); }
+      else if (a.click && !a.confirm && !a.flow && score(q, (a.say || []).concat([a.name])) >= 0.6) jobs.push({ label: a.name.replace(/^Show /, ""), run: function () { var b = button(a.click, a.within); if (b) b.click(); return Promise.resolve(!!b); } });
+    });
+    return jobs;
+  }
+  function runJobs(jobs, i, done) {
+    if (i >= jobs.length) return done();
+    jobs[i].run().then(function () { setTimeout(function () { runJobs(jobs, i + 1, done); }, 350); });
+  }
+  function applyHere(sc, q, prefix) {
+    var jobs = screenMatches(sc, q);
+    if (!jobs.length) return false;
+    runJobs(jobs, 0, function () { say((prefix || "") + "Showing " + jobs.map(function (j) { return j.label; }).join(" + ") + "."); });
+    return true;
+  }
+
   function bestField(sc, q) {
     var best = null;
     (sc.fields || []).forEach(function (f) { var s = score(q, f.say.concat([f.name])); if (!best || s > best.s) best = { f: f, s: s }; });
@@ -463,6 +507,17 @@
     }
     if (/^(do it for me|do it|you do it)$/.test(lq) && state.lastHow) { var lh = state.lastHow; state.lastHow = null; state.howTo = false; return run(lh, state.lastHowQ || ""); }
     if (/^(next|skip|continue)$/.test(lq)) return say("Nothing is waiting for that right now.");
+    var sm = lq.match(/^(?:please\s+)?(scroll|go|move|page)?\s*(down|up|to the top|to the bottom|top|bottom)\b/);
+    if (sm && sm[2]) {
+      var root = document.scrollingElement || document.documentElement;
+      var panes = [].slice.call(document.querySelectorAll("body *")).filter(function (e) { return e.scrollHeight > e.clientHeight + 40 && e.clientHeight > 200 && /(auto|scroll)/.test(getComputedStyle(e).overflowY) && !e.closest("aside,nav,#ap-bar"); }).sort(function (a, b) { return b.clientHeight * b.clientWidth - a.clientHeight * a.clientWidth; });
+      var pane = root.scrollHeight > root.clientHeight + 40 ? root : (panes[0] || root), h = (pane === root ? window.innerHeight : pane.clientHeight) * 0.8;
+      if (/top/.test(sm[2])) pane.scrollTo({ top: 0, behavior: "smooth" }); else if (/bottom/.test(sm[2])) pane.scrollTo({ top: pane.scrollHeight, behavior: "smooth" });
+      else pane.scrollBy({ top: sm[2] === "up" ? -h : h, behavior: "smooth" });
+      return say(sm[2] === "up" ? "Scrolled up." : /top/.test(sm[2]) ? "At the top." : /bottom/.test(sm[2]) ? "At the bottom." : "Scrolled down.");
+    }
+    if (/^(refresh|reload)( the page)?$/.test(lq)) { location.reload(); return; }
+    if (/^(go to|open|show|take me to)( the| an| my| a)? (live )?(event|show)$/.test(lq)) return resolveEvent(q, function (slug) { go("/events/" + slug + "/registrations"); say("Opened " + eventName(slug) + "."); });
     var clickM = lq.match(/^(?:click|press|tap)\s+(.+)$/);
     if (clickM) { var b = button(clickM[1]); if (b) { b.click(); say("Clicked " + b.innerText.trim() + "."); } else miss(q, "no button called that here"); return; }
 
@@ -470,7 +525,10 @@
     if (howTo) { q = q.replace(/^(how (do|can|would|should) (i|we|you)|how to|show me how( to)?|steps to|what are the steps (to|for)|teach me( to| how to)?|guide me( to| through)?)\s*/i, ""); lq = q.toLowerCase(); }
     state.howTo = howTo;
     var ne = namedEvents(q);
-    if (ne.length === 1 && /^(open|show|go to|take me to)\b/.test(lq) && !/\b(settings|visitors|registrations|report|analytics|leads|questions|feed|integrations|emails|communications|scan|badge)\b/.test(lq)) { go("/events/" + ne[0].slug); say("Opened " + ne[0].name + "."); return; }
+    var here0 = currentScreen();
+    /* the screen they are looking at comes first: filters and buttons on it, all at once */
+    if (here0 && !howTo && applyHere(here0, q)) return;
+    if (ne.length === 1 && /^(open|show|go to|take me to)\b/.test(lq) && !/\b(settings|visitors|registrations|report|analytics|leads|questions|feed|integrations|emails|communications|scan|badge|icps?|hot|warm|cold|intent|follow)\b/.test(lq)) { go("/events/" + ne[0].slug); say("Opened " + ne[0].name + "."); return; }
     var here = currentScreen();
     var cands = [];
     MAP.screens.forEach(function (sc) {
@@ -490,6 +548,7 @@
     });
     cands.sort(function (a, b) { return b.s - a.s; });
     var top = cands[0];
+    if ((!top || top.s < 0.5) && q.split(/\s+/).length > 12) { try { var ch = JSON.parse(localStorage.getItem("askpravah_chatter") || "[]"); ch.unshift({ at: new Date().toISOString(), words: q, screen: route() }); localStorage.setItem("askpravah_chatter", JSON.stringify(ch.slice(0, 50))); } catch (x) {} return; }
     if (!top || top.s < (howTo ? 0.5 : 0.4)) {
       if (howTo) {
         var near = cands.slice(0, 2).filter(function (c) { return c.s >= 0.25; });
@@ -531,6 +590,7 @@
     }
     if (c.kind === "action") {
       if (c.a.flow) { var fl = (c.sc.flows || []).filter(function (x) { return x.id === c.a.flow; })[0]; if (fl) return runFlow(fl, c.sc, q); }
+      if (c.a.choose) return openScreen(c.sc, q);
       var here2 = currentScreen();
       var target = c.a.route || (here2 && here2.id === c.sc.id ? null : c.sc.route);
       if (target && target.indexOf(":visitorId") >= 0) return say("Open a visitor first, then say it again.");
@@ -539,7 +599,7 @@
         if (c.a.show) return waitFor(function () { return [].slice.call(document.querySelectorAll("h1,h2,h3")).filter(function (h) { return visible(h) && norm(h.innerText).indexOf(norm(c.a.show)) === 0; })[0]; }).then(function (h) { if (h) { h.scrollIntoView({ block: "start", behavior: "smooth" }); spotlight(h, c.a.name); setTimeout(clearSpot, 2000); } say(c.a.done || "Here it is."); });
         if (c.a.click) waitFor(function () { return button(c.a.click, c.a.within); }).then(function (b) {
           if (!b) return say("I couldn't find " + c.a.click + " here.");
-          var doClick = function () { b.click(); say(c.a.done || c.a.name + "."); };
+          var doClick = function () { b.click(); var nm = c.a.name.replace(/^Show /, ""); var rest = screenMatches(c.sc, q).filter(function (j) { return j.label !== nm; }); if (rest.length) runJobs(rest, 0, function () { say("Showing " + [nm].concat(rest.map(function (j) { return j.label; })).join(" + ") + "."); }); else say(c.a.done || c.a.name + "."); };
           if (c.a.confirm) return ask(c.a.confirm, [{ label: "Yes", run: doClick }, { label: "No", run: function () { say("OK, left it."); } }]);
           doClick();
         });
@@ -577,6 +637,7 @@
       sendRequest(rec);
       try { var f = JSON.parse(localStorage.getItem("askpravah_feature_requests") || "[]"); f.unshift(rec); localStorage.setItem("askpravah_feature_requests", JSON.stringify(f.slice(0, 200))); } catch (x) {}
     };
+    if (/github\.io$|localhost|127\.0\.0\.1/.test(location.hostname)) { return say("Not yet. I've noted it so Jinbe can teach me.", true); }
     ask("I'm not sure Pravah can do that today. Is it critical for you?", [
       { label: "Critical", run: function () { file("critical"); say("Got it, marked critical. I've passed it to the team and I'll get back to you on this."); } },
       { label: "Nice to have", run: function () { file("nice to have"); say("Noted for the team. I'll get back to you on this."); } },
