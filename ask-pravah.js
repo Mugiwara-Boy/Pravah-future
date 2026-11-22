@@ -512,6 +512,10 @@
       var root = document.scrollingElement || document.documentElement;
       var panes = [].slice.call(document.querySelectorAll("body *")).filter(function (e) { return e.scrollHeight > e.clientHeight + 40 && e.clientHeight > 200 && /(auto|scroll)/.test(getComputedStyle(e).overflowY) && !e.closest("aside,nav,#ap-bar"); }).sort(function (a, b) { return b.clientHeight * b.clientWidth - a.clientHeight * a.clientWidth; });
       var pane = root.scrollHeight > root.clientHeight + 40 ? root : (panes[0] || root), h = (pane === root ? window.innerHeight : pane.clientHeight) * 0.8;
+      var max = pane.scrollHeight - pane.clientHeight, at = pane.scrollTop;
+      if (max < 40) return say("That's the whole page. Nothing more to scroll.");
+      if (sm[2] === "up" && at <= 0 || /top/.test(sm[2]) && at <= 0) return say("Already at the top.");
+      if ((sm[2] === "down" || /bottom/.test(sm[2])) && at >= max - 2) return say("Already at the bottom.");
       if (/top/.test(sm[2])) pane.scrollTo({ top: 0, behavior: "smooth" }); else if (/bottom/.test(sm[2])) pane.scrollTo({ top: pane.scrollHeight, behavior: "smooth" });
       else pane.scrollBy({ top: sm[2] === "up" ? -h : h, behavior: "smooth" });
       return say(sm[2] === "up" ? "Scrolled up." : /top/.test(sm[2]) ? "At the top." : /bottom/.test(sm[2]) ? "At the bottom." : "Scrolled down.");
