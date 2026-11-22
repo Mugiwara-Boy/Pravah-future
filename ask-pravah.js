@@ -64,6 +64,53 @@
     return best;
   }
 
+
+  /* ---------- how people speak: turn speech into the text a field needs ---------- */
+  var NUM = { zero: "0", oh: "0", one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9" };
+  function titleCase(t) { return t.replace(/\b([a-z])([a-z']*)/gi, function (m, a, b) { return a.toUpperCase() + b.toLowerCase(); }); }
+  function joinSpelled(t) { /* "r o h i t" -> "rohit" */
+    return t.replace(/\b(?:[a-z]\s){2,}[a-z]\b/gi, function (m) { return m.replace(/\s/g, ""); });
+  }
+  function spoken(t, type) {
+    var x = " " + t.trim() + " ";
+    x = x.replace(/\s+(?:capital|cap)\s+([a-z])\b/gi, function (m, c) { return " " + c.toUpperCase(); });
+    if (type === "email" || type === "url") {
+      x = x.replace(/\s(?:at the rate(?: of)?|at sign|at)\s/gi, "@")
+           .replace(/\s(?:dot|period|point|full stop)\s/gi, ".")
+           .replace(/\s(?:underscore|under score)\s/gi, "_")
+           .replace(/\s(?:dash|hyphen|minus)\s/gi, "-")
+           .replace(/\s(?:forward slash|slash)\s/gi, "/")
+           .replace(/\scolon\s/gi, ":")
+           .replace(/\s(?:space)\s/gi, " ");
+      x = joinSpelled(x).replace(/\s+/g, "").toLowerCase();
+      if (type === "url" && x && !/^https?:\/\//.test(x)) x = "https://" + x.replace(/^www\./, "www.");
+      return x;
+    }
+    if (type === "phone") {
+      x = x.toLowerCase().replace(/\bplus\b/g, "+").replace(/\bdouble (\w+)\b/g, "$1 $1").replace(/\btriple (\w+)\b/g, "$1 $1 $1");
+      x = x.replace(/\b(zero|oh|one|two|three|four|five|six|seven|eight|nine)\b/g, function (m) { return NUM[m]; });
+      return x.replace(/[^\d+]/g, "");
+    }
+    x = x.replace(/\snew line\s/gi, "\n").replace(/\s(?:full stop|period)\s/gi, ". ").replace(/\scomma\s/gi, ", ")
+         .replace(/\squestion mark\s/gi, "? ").replace(/\s(?:space)\s/gi, " ").replace(/\s(?:hyphen|dash)\s/gi, "-");
+    if (type === "name") {
+      var fn = x.match(/first name\s+(.+?)(?=\s+(?:middle|last|surname)\s+name|\s+surname|$)/i),
+          mn = x.match(/middle name\s+(.+?)(?=\s+(?:last|surname)\s+name|\s+surname|$)/i),
+          ln = x.match(/(?:last name|surname)\s+(.+)$/i);
+      if (fn || ln) x = [fn && fn[1], mn && mn[1], ln && ln[1]].filter(Boolean).join(" ");
+      x = titleCase(joinSpelled(x).trim().replace(/\s+/g, " "));
+      return x;
+    }
+    return x.trim().replace(/\s+([.,?])/g, "$1");
+  }
+  /* "name Rohit Sharma company Infosys email rohit at infosys dot com" -> slots */
+  function slots(t, names) {
+    var keys = names.map(function (n) { return n.toLowerCase(); }), out = {}, re = new RegExp("\\b(" + keys.map(function (k) { return k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("|") + ")\\b(?:\\s+is)?\\s+", "gi"), m, marks = [];
+    while ((m = re.exec(t))) marks.push({ k: m[1].toLowerCase(), at: m.index, from: re.lastIndex });
+    marks.forEach(function (mk, i) { out[mk.k] = t.slice(mk.from, i + 1 < marks.length ? marks[i + 1].at : t.length).trim(); });
+    return out;
+  }
+
   /* ---------- app context ---------- */
   function route() { return (location.hash || "#/").slice(1); }
   function events() {
@@ -142,7 +189,7 @@
   function field(name) {
     var scope = [].slice.call(document.querySelectorAll("[role=dialog]")).filter(visible)[0] || document;
     var els = [].slice.call(scope.querySelectorAll("input,textarea")).filter(visible), n = norm(name);
-    return els.filter(function (e) { return fieldLabel(e) === n; })[0] || els.filter(function (e) { return fieldLabel(e).indexOf(n) === 0; })[0] || null;
+    return els.filter(function (e) { return fieldLabel(e) === n; })[0] || els.filter(function (e) { return norm(e.placeholder) === n; })[0] || els.filter(function (e) { return fieldLabel(e).indexOf(n) === 0; })[0] || null;
   }
   function setValue(el, v) {
     var proto = el.tagName === "TEXTAREA" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
@@ -169,7 +216,7 @@
     if (a && a.s > 0.5 && a.a.click) waitFor(function () { return button(a.a.click); }).then(function (b) { if (b) { b.click(); say(a.a.done || a.a.name + "."); } });
   }
   function editField(el, f, q) {
-    var v = valueIn(q);
+    var v = valueIn(q); if (v) v = spoken(v, f.type);
     focusField(el);
     if (!v && /^(show|what|see|view|open)\b/i.test(q)) { say("Here's the " + f.name + ". Say \u201cchange it to\u2026\u201d to edit."); state.pending = { kind: "value", el: el, f: f }; return; }
     if (v) { setValue(el, v); say(f.name + " set to “" + v + "”. Say “save” to keep it."); }
@@ -205,6 +252,157 @@
     return true;
   }
 
+
+  /* ---------- guided flows on a screen (from the map) ---------- */
+  function fieldType(sc, name) { var f = (sc.fields || []).filter(function (x) { return norm(x.name) === norm(name); })[0]; return f && f.type; }
+  function runFlow(flow, sc, q) {
+    var fid = state.flowId = (state.flowId || 0) + 1;
+    var start = function (slug) {
+      var dest = flow.route ? fill(flow.route, slug || "") : (sc.level === "event" ? fill(sc.route, slug) : sc.route);
+      go(dest);
+      var given = slots(q, flow.steps.filter(function (x) { return x.fill; }).map(function (x) { return x.fill; }));
+      waitFor(function () { return route() === dest; }).then(function () { setTimeout(function () { if (fid === state.flowId) step(flow, sc, 0, given, fid); }, 250); });
+    };
+    var lvl = (flow.route || sc.route).indexOf(":slug") >= 0;
+    return lvl ? resolveEvent(q, start) : start(null);
+  }
+  function indexOf(flow, id) { for (var i = 0; i < flow.steps.length; i++) if (flow.steps[i].id === id) return i; return -1; }
+  function step(flow, sc, i, given, fid) {
+    if (fid !== undefined && fid !== state.flowId) return;
+    if (fid === undefined) fid = state.flowId;
+    var st = flow.steps[i];
+    if (!st) { state.pending = null; state.guided = false; setTimeout(clearSpot, 1500); return; }
+    var next = function () { if (st.end) { state.pending = null; state.guided = false; return; } step(flow, sc, i + 1, given, fid); };
+    if (st.ask) {
+      return ask(st.ask, st.choices.map(function (c) {
+        return { label: c.label, run: function () {
+          if (c.click) { var b = button(c.click); if (b) b.click(); }
+          if (c.go) return step(flow, sc, indexOf(flow, c.go), given, fid);
+          say(c.say || "Done."); state.pending = null; state.guided = false; setTimeout(clearSpot, 1200);
+        } };
+      }));
+    }
+    if (state.guided && (st.click || st.fill)) {
+      var gt = st.click ? function () { return button(st.click); } : function () { return field(st.fill); };
+      var gtarget = gt();
+      if (gtarget) { spotlight(gtarget, st.click ? "Clicking " + st.click : "Filling " + st.fill); }
+      setTimeout(function () { if (fid !== state.flowId) return; var g = state.guided; state.guided = false; stepNow(flow, sc, i, given, fid); state.guided = g; }, gtarget ? 1600 : 0);
+      return;
+    }
+    stepNow(flow, sc, i, given, fid);
+  }
+  function stepNow(flow, sc, i, given, fid) {
+    var st = flow.steps[i];
+    var next = function () { if (st.end) { state.pending = null; state.guided = false; return; } step(flow, sc, i + 1, given, fid); };
+    if (st.click) {
+      if (st.then && field(st.then.fill)) return sub(st.then, sc, function () { state.pending = null; });
+      return waitFor(function () { return button(st.click); }).then(function (b) {
+        if (fid !== state.flowId) return;
+        if (!b) { say("I couldn't find " + st.click + " here."); return; }
+        b.click();
+        if (st.then) return sub(st.then, sc, function () { state.pending = null; });
+        if (st.say) say(st.say);
+        if (st.end) { state.pending = null; return; }
+        if (st.say && /say next/i.test(st.say)) { state.pending = { kind: "flow", wait: true, next: next }; return; }
+        next();
+      });
+    }
+    if (st.fill) {
+      return waitFor(function () { return field(st.fill); }).then(function (el) {
+        if (fid !== state.flowId) return;
+        if (!el) { if (st.optional) return next(); return say("I couldn't find " + st.fill + " here."); }
+        var type = st.type || fieldType(sc, st.fill);
+        var pre = given && given[st.fill.toLowerCase()];
+        if (pre) { setValue(el, spoken(pre, type)); return next(); }
+        focusField(el);
+        say(st.fill + "?" + (st.optional ? " Or say skip." : ""));
+        state.pending = { kind: "flow", el: el, f: { name: st.fill, type: type }, next: next };
+      });
+    }
+    next();
+  }
+  function sub(spec, sc, done) {
+    waitFor(function () { return field(spec.fill); }).then(function (el) {
+      if (!el) return say("I couldn't find " + spec.fill + ".");
+      focusField(el); say(spec.fill + "?");
+      state.pending = { kind: "flow", el: el, f: { name: spec.fill }, next: function () {
+        var b = button(spec.submit); if (b) b.click();
+        if (spec.repeat) ask(spec.repeat, [{ label: "Yes", run: function () { sub(spec, sc, done); } }, { label: "No, done", run: function () { say("Done."); done(); } }]);
+        else done();
+      } };
+    });
+  }
+
+
+  /* ---------- "how do I ...": show the steps on screen, highlighting each one ---------- */
+  var hl = null;
+  function spotlight(target, caption) {
+    clearSpot();
+    if (!target) return;
+    target.scrollIntoView({ block: "center", behavior: "smooth" });
+    var r = target.getBoundingClientRect();
+    hl = document.createElement("div");
+    hl.id = "ap-spot";
+    hl.style.cssText = "position:fixed;z-index:2147482999;pointer-events:none;border:3px solid #F5B23B;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.35);transition:all .25s;left:" + (r.left - 6) + "px;top:" + (r.top - 6) + "px;width:" + (r.width + 12) + "px;height:" + (r.height + 12) + "px";
+    var tip = document.createElement("div");
+    tip.textContent = caption;
+    tip.style.cssText = "position:absolute;left:0;top:" + (r.height + 18) + "px;background:#F5B23B;color:#111;font:600 13px Inter,system-ui,sans-serif;padding:6px 10px;border-radius:8px;white-space:nowrap";
+    if (r.bottom + 60 > window.innerHeight) tip.style.top = "-40px";
+    hl.appendChild(tip);
+    document.body.appendChild(hl);
+  }
+  function clearSpot() { if (hl && hl.parentNode) hl.parentNode.removeChild(hl); hl = null; }
+  function navLink(dest) { return [].slice.call(document.querySelectorAll('a[href="#' + dest + '"]')).filter(visible)[0] || null; }
+  function pause(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  /* build the steps for a match, then walk them: highlight, explain, then do it */
+  function showHow(c, q) {
+    if (c.kind === "flow") { state.guided = true; say("I'll take you through it and do each step on screen."); return setTimeout(function () { runFlow(c.fl, c.sc, q); }, 900); }
+    var steps = [];
+    var dest = function (slug) { return slug ? fill(c.fl && c.fl.route || c.sc.route, slug) : (c.fl && c.fl.route) || c.sc.route; };
+    var plan = function (slug) {
+      var d = dest(slug).replace(/\/registrations\/:visitorId$/, "/registrations");
+      var top = d.split("/").slice(0, slug ? 4 : 2).join("/");
+      var cur = currentScreen();
+      if (!(cur && cur.id === c.sc.id)) {
+        if (c.sc.id === "S-23") return say("Open the visitor first, then ask me again.");
+        steps.push({ find: function () { return navLink(d) || navLink(top); }, cap: "Open " + (c.sc.name.split(",")[0]), go: d });
+      }
+      if (c.kind === "field") steps.push({ find: function () { return c.sc.id === "S-23" ? button("Edit") : field(c.f.name); }, cap: c.sc.id === "S-23" ? "Click Edit" : "This is " + c.f.name, ask: c.f });
+      if (c.kind === "action" && c.a.click) steps.push({ find: function () { return button(c.a.click); }, cap: "Click " + c.a.click, click: true });
+      if (c.kind === "flow") c.fl.steps.forEach(function (st) {
+        if (st.fill) steps.push({ find: function () { return field(st.fill); }, cap: "Fill in " + st.fill + (st.optional ? " (optional)" : "") });
+        if (st.click && !st.end) steps.push({ find: function () { return button(st.click); }, cap: "Click " + st.click });
+        if (st.then) { steps.push({ find: function () { return field(st.then.fill); }, cap: "Type it in " + st.then.fill }); steps.push({ find: function () { return button(st.then.submit); }, cap: "Click " + st.then.submit }); }
+        if (st.click && st.end) steps.push({ find: function () { return button(st.click); }, cap: "Click " + st.click + " to finish" });
+        if (st.ask) (st.choices || []).forEach(function (ch) { if (ch.click) steps.push({ find: function () { return button(ch.click); }, cap: "Then click " + ch.click }); });
+      });
+      state.walkId = (state.walkId || 0) + 1;
+      walk(steps, 0, state.walkId);
+    };
+    (c.sc.level === "event" || (c.fl && (c.fl.route || "").indexOf(":slug") >= 0)) ? resolveEvent(q, plan) : plan(null);
+  }
+  function walk(steps, i, id) {
+    if (id !== state.walkId) { return; }
+    if (i >= steps.length) { setTimeout(clearSpot, 2500); if (!state.pending) say("Done."); return; }
+    var st = steps[i];
+    waitFor(st.find, 3000).then(function (target) {
+      if (id !== state.walkId) return;
+      say("Step " + (i + 1) + " of " + steps.length + ": " + st.cap + ".");
+      spotlight(target, (i + 1) + ". " + st.cap);
+      return pause(2200).then(function () {
+        if (st.go && route() !== st.go) { if (target) target.click(); else go(st.go); }
+        else if (st.click && target) target.click();
+        else if (st.ask) {
+          if (target && target.tagName === "BUTTON") { target.click(); return pause(700).then(function () { var el2 = field(st.ask.name); if (el2) { spotlight(el2, "Type or say the new " + st.ask.name.toLowerCase()); focusField(el2); state.pending = { kind: "value", el: el2, f: st.ask }; say("What should the " + st.ask.name.toLowerCase() + " be?"); } }); }
+          if (target) { focusField(target); state.pending = { kind: "value", el: target, f: st.ask }; say("What should the " + st.ask.name.toLowerCase() + " be?"); }
+          return pause(300);
+        }
+        return pause(900);
+      });
+    }).then(function () { walk(steps, i + 1, id); });
+  }
+
+
   function bestField(sc, q) {
     var best = null;
     (sc.fields || []).forEach(function (f) { var s = score(q, f.say.concat([f.name])); if (!best || s > best.s) best = { f: f, s: s }; });
@@ -221,19 +419,43 @@
     var q = raw.trim();
     if (!q) return;
     state.log.unshift(q);
+    state.walkId = (state.walkId || 0) + 1; clearSpot();
+    if (!state.pending && !(state.choices && state.choices.length)) { state.flowId = (state.flowId || 0) + 1; state.guided = false; }
     var lq = q.toLowerCase();
     if (/^(stop|stop listening|that's all|thats all|goodbye|bye)\b/.test(lq)) { toggle(false); return; }
     if (/^(save|save it|yes save|done)$/.test(lq)) { var sv = button("Save") || button("Save ideal customer profile") || button("Save details") || button("Save defaults"); if (sv) { sv.click(); say("Saved."); state.pending = null; } else say("Nothing to save here."); return; }
     if (/^(cancel|never mind|nevermind)$/.test(lq)) { var c = button("Cancel"); if (c) c.click(); state.pending = null; say("Cancelled."); return; }
     if (/^(go back|back)$/.test(lq)) { history.back(); say("Back."); return; }
 
+    /* answering a question by voice: say the choice, or yes / no */
+    if (state.choices && state.choices.length) {
+      var ch = state.choices, pick = null;
+      ch.forEach(function (o) { if (!pick && (norm(o.label) === lq || norm(o.label).indexOf(lq) === 0 || lq.indexOf(norm(o.label)) >= 0)) pick = o; });
+      if (!pick && /^(yes|yeah|yep|sure|ok|okay|go ahead|do it)\b/.test(lq)) pick = ch[0];
+      if (!pick && /^(no|nope|not now|don't|dont)\b/.test(lq)) pick = ch.filter(function (o) { return /^(no|not)/i.test(o.label); })[0] || ch[ch.length - 1];
+      if (!pick) { var bs = 0; ch.forEach(function (o) { var v = score(q, [o.label]); if (v > bs) { bs = v; pick = v >= 0.5 ? o : pick; } }); }
+      if (pick) { state.choices = null; pick.run(); return; }
+    }
+    state.choices = null;
+    /* answering a step of a guided flow */
+    if (state.pending && /^(open|go to|go back|take me|show|scan|update|change|edit|add|create|book|mark|how|stop|cancel)\b/.test(lq) && bestScore(q) >= 0.6) { state.pending = null; clearSpot(); }
+    if (state.pending && state.pending.kind === "flow") {
+      var pf = state.pending;
+      if (/^(skip|next|no|none|continue|done)$/.test(lq)) { state.pending = null; return pf.next(); }
+      if (pf.wait) return;
+      if (pf.el && document.contains(pf.el)) { var fv = spoken(q, pf.f.type); setValue(pf.el, fv); say(pf.f.name + ": " + fv); state.pending = null; return setTimeout(pf.next, 600); }
+    }
     /* dictating into the field we are in */
     if (state.pending && state.pending.kind === "value" && document.contains(state.pending.el) && !/\b(open|show|go to|take me|scan|update|change|add|edit)\b/.test(lq)) {
-      setValue(state.pending.el, q); say(state.pending.f.name + " set to “" + q + "”. Say “save” to keep it."); return;
+      var nv = spoken(q, state.pending.f.type); setValue(state.pending.el, nv); say(state.pending.f.name + " set to “" + nv + "”. Say “save” to keep it."); return;
     }
+    if (/^(do it for me|do it|you do it)$/.test(lq) && state.lastHow) { var lh = state.lastHow; state.lastHow = null; state.howTo = false; return run(lh, state.lastHowQ || ""); }
     var clickM = lq.match(/^(?:click|press|tap)\s+(.+)$/);
     if (clickM) { var b = button(clickM[1]); if (b) { b.click(); say("Clicked " + b.innerText.trim() + "."); } else miss(q, "no button called that here"); return; }
 
+    var howTo = /^(how (do|can|would|should) (i|we|you)|how to|show me how|steps to|what are the steps|teach me|guide me)\b/.test(lq);
+    if (howTo) { q = q.replace(/^(how (do|can|would|should) (i|we|you)|how to|show me how( to)?|steps to|what are the steps (to|for)|teach me( to| how to)?|guide me( to| through)?)\s*/i, ""); lq = q.toLowerCase(); }
+    state.howTo = howTo;
     var ne = namedEvents(q);
     if (ne.length === 1 && /^(open|show|go to|take me to)\b/.test(lq) && !/\b(settings|visitors|registrations|report|analytics|leads|questions|feed|integrations|emails|communications|scan|badge)\b/.test(lq)) { go("/events/" + ne[0].slug); say("Opened " + ne[0].name + "."); return; }
     var here = currentScreen();
@@ -241,7 +463,8 @@
     MAP.screens.forEach(function (sc) {
       cands.push({ sc: sc, kind: "screen", s: score(q, sc.say.concat([sc.name])) });
       (sc.fields || []).forEach(function (f) { if (f.edit) cands.push({ sc: sc, kind: "field", f: f, s: score(q, f.say) + (here && here.id === sc.id ? 0.08 : 0) }); });
-      (sc.actions || []).forEach(function (a) { cands.push({ sc: sc, kind: "action", a: a, s: score(q, (a.say || []).concat([a.name])) + (here && here.id === sc.id ? 0.1 : 0) }); });
+      (sc.actions || []).forEach(function (a) { if (!a.flow) cands.push({ sc: sc, kind: "action", a: a, s: score(q, (a.say || []).concat([a.name])) + (here && here.id === sc.id ? 0.1 : 0) }); });
+      (sc.flows || []).forEach(function (fl) { cands.push({ sc: sc, kind: "flow", fl: fl, s: score(q, fl.say) + 0.05 }); });
     });
     cands = cands.filter(function (c) { return c.sc.verified !== false || c.kind !== "field" || c.sc.fields_verified !== false; });
     /* level hints: a named event or "this event" points to the event level; "company", "my", "org" without "event" to the org level */
@@ -249,20 +472,41 @@
     var wantsOrg = !wantsEvent && /\b(company|org|organisation|organization|my|our|all)\b/.test(lq);
     cands.forEach(function (c) {
       if (c.kind !== "screen") c.s += 0.06;
-      if (wantsEvent && c.sc.level === "event") c.s += 0.15;
-      if (wantsOrg && c.sc.level === "org") c.s += 0.15;
+      if (c.s >= 0.5 && wantsEvent && c.sc.level === "event") c.s += 0.15;
+      if (c.s >= 0.5 && wantsOrg && c.sc.level === "org") c.s += 0.15;
     });
     cands.sort(function (a, b) { return b.s - a.s; });
     var top = cands[0];
-    if (!top || top.s < 0.34) { if (/^(open|show|find|pull up|go to)\s+\w+/.test(lq) && openVisitor(q)) return; return miss(q, "no screen or action in the map matches"); }
+    if (!top || top.s < (howTo ? 0.5 : 0.4)) {
+      if (howTo) {
+        miss(q, "how-to with no match");
+        var near = cands.slice(0, 3).filter(function (c) { return c.s >= 0.25; });
+        if (near.length) return ask("I don't know that one yet. Closest:", near.map(function (c) { return { label: label(c), run: function () { state.howTo = true; run(c, q); } }; }));
+        return say("I don't know that one yet. I've noted it so the team can add it.", true);
+      }
+      if (/^(open|show|find|pull up|go to)\s+\w+/.test(lq) && openVisitor(q)) return;
+      return miss(q, "no screen or action in the map matches");
+    }
     var close = cands.filter(function (c) { return c.s >= top.s - 0.06 && label(c) !== label(top); }).slice(0, 2);
     if (close.length && top.s < 0.7) return ask("Did you mean", [top].concat(close).map(function (c) { return { label: label(c), run: function () { run(c, q); } }; }));
     run(top, q);
   }
-  function label(c) { return c.kind === "screen" ? c.sc.name : c.kind === "field" ? c.f.name + " on " + c.sc.name : c.a.name; }
+  function bestScore(q) {
+    var b = 0;
+    MAP.screens.forEach(function (sc) {
+      b = Math.max(b, score(q, sc.say.concat([sc.name])));
+      (sc.fields || []).forEach(function (f) { b = Math.max(b, score(q, f.say)); });
+      (sc.actions || []).forEach(function (a) { b = Math.max(b, score(q, a.say || [])); });
+      (sc.flows || []).forEach(function (fl) { b = Math.max(b, score(q, fl.say)); });
+    });
+    return b;
+  }
+  function label(c) { return c.kind === "screen" ? c.sc.name : c.kind === "field" ? c.f.name + " on " + c.sc.name : c.kind === "flow" ? c.fl.say[0].replace(/^./, function (x) { return x.toUpperCase(); }) : c.a.name; }
   function run(c, q) {
     if (c.sc.verified === false) return say(c.sc.name + " isn't confirmed in the map yet, so I won't act on it.");
+    if (state.howTo) { state.lastHow = c; state.lastHowQ = q; return showHow(c, q); }
     if (c.kind === "screen") return openScreen(c.sc, q);
+    if (c.kind === "flow") return runFlow(c.fl, c.sc, q);
     if (c.kind === "field") {
       if (c.sc.id === "S-23") return visitorFieldEdit(c.f, q);
       var path = c.sc.route;
@@ -352,6 +596,7 @@
   function status(t) { say(t); }
   function heard(t) { if (t) show('<span class="dot"></span><span class="t heard">“' + esc(t) + '”</span>', false, true); }
   function ask(qtext, opts) {
+    state.choices = opts;
     show('<span class="dot"></span><span class="q">' + esc(qtext) + "</span>", false, true);
     opts.slice(0, 3).forEach(function (o) { var b = document.createElement("button"); b.type = "button"; b.textContent = o.label.split(":")[0]; b.title = o.label; b.onclick = function () { o.run(); }; el.bar.appendChild(b); });
   }

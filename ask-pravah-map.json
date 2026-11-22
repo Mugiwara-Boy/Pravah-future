@@ -22,11 +22,67 @@
    "name": "New event",
    "route": "/events/new",
    "level": "org",
-   "does": "Creates an event.",
+   "does": "Creates an event. The org settings (business summary, industries, ICP) fill in by themselves; edit them here for this event only.",
    "say": [
     "create an event",
     "add a new event",
     "new show"
+   ],
+   "flows": [
+    {
+     "id": "create-event",
+     "route": "/events/new",
+     "say": [
+      "create an event",
+      "add a new event",
+      "new show",
+      "set up an event"
+     ],
+     "steps": [
+      {
+       "fill": "Event name"
+      },
+      {
+       "fill": "Location"
+      },
+      {
+       "click": "Choose dates",
+       "say": "Pick the first and last day on the calendar, then say next."
+      },
+      {
+       "ask": "Keep the company ICP for this event?",
+       "choices": [
+        {
+         "label": "Keep it",
+         "go": "create"
+        },
+        {
+         "label": "Change it for this event",
+         "go": "icp"
+        }
+       ]
+      },
+      {
+       "id": "icp",
+       "fill": "Ideal customer profile"
+      },
+      {
+       "id": "create",
+       "ask": "Create the event?",
+       "choices": [
+        {
+         "label": "Create",
+         "click": "Create event",
+         "say": "Event created."
+        },
+        {
+         "label": "Not now",
+         "say": "Left it unsaved."
+        }
+       ]
+      }
+     ]
+    }
    ],
    "verified": true,
    "in": [
@@ -85,9 +141,121 @@
     {
      "name": "Business website",
      "edit": true,
+     "type": "url",
      "say": [
       "update the website",
       "change our website"
+     ]
+    },
+    {
+     "name": "Product page",
+     "edit": true,
+     "type": "url",
+     "say": [
+      "update the product page link"
+     ]
+    },
+    {
+     "name": "Service page",
+     "edit": true,
+     "type": "url",
+     "say": [
+      "update the service page link"
+     ]
+    }
+   ],
+   "flows": [
+    {
+     "id": "refresh-offerings",
+     "say": [
+      "update my products and services",
+      "update products",
+      "update services",
+      "refresh products and services",
+      "update my offerings"
+     ],
+     "steps": [
+      {
+       "ask": "Update the links first?",
+       "choices": [
+        {
+         "label": "Yes, new links",
+         "go": "links"
+        },
+        {
+         "label": "No, same links",
+         "go": "enrich"
+        },
+        {
+         "label": "Add one by hand",
+         "go": "manual"
+        }
+       ]
+      },
+      {
+       "id": "links",
+       "fill": "Business website",
+       "optional": true
+      },
+      {
+       "fill": "Product page",
+       "optional": true
+      },
+      {
+       "fill": "Service page",
+       "optional": true
+      },
+      {
+       "id": "enrich",
+       "click": "Enrich",
+       "say": "Reading your site again for products and services. They'll update when it's done.",
+       "end": true
+      },
+      {
+       "id": "manual",
+       "click": "Products",
+       "then": {
+        "fill": "Add product",
+        "submit": "Add",
+        "repeat": "Another product?"
+       }
+      }
+     ]
+    },
+    {
+     "id": "add-product",
+     "say": [
+      "add a product",
+      "add product",
+      "new product"
+     ],
+     "steps": [
+      {
+       "click": "Products",
+       "then": {
+        "fill": "Add product",
+        "submit": "Add",
+        "repeat": "Another product?"
+       }
+      }
+     ]
+    },
+    {
+     "id": "add-service",
+     "say": [
+      "add a service",
+      "add service",
+      "new service"
+     ],
+     "steps": [
+      {
+       "click": "Services",
+       "then": {
+        "fill": "Add service",
+        "submit": "Add",
+        "repeat": "Another service?"
+       }
+      }
      ]
     }
    ],
@@ -113,11 +281,56 @@
     {
      "name": "Add member",
      "route": "/team/new",
-     "done": "Opened Add member.",
+     "flow": "add-member",
      "say": [
       "add a rep",
       "invite a teammate",
       "add a team member"
+     ]
+    }
+   ],
+   "flows": [
+    {
+     "id": "add-member",
+     "route": "/team/new",
+     "say": [
+      "add a rep",
+      "invite a teammate",
+      "add a team member",
+      "add someone to the team"
+     ],
+     "steps": [
+      {
+       "fill": "Full name",
+       "type": "name"
+      },
+      {
+       "fill": "Work email",
+       "type": "email"
+      },
+      {
+       "fill": "LinkedIn profile URL",
+       "type": "url",
+       "optional": true
+      },
+      {
+       "fill": "Role",
+       "optional": true
+      },
+      {
+       "ask": "Add this member?",
+       "choices": [
+        {
+         "label": "Add",
+         "click": "Add member",
+         "say": "Member added."
+        },
+        {
+         "label": "Not now",
+         "say": "Left it unsaved."
+        }
+       ]
+      }
      ]
     }
    ],
@@ -308,13 +521,57 @@
     },
     {
      "name": "Type name and company",
-     "field": "Name",
-     "done": "Say the visitor's name, or type it.",
+     "flow": "add-visitor-manual",
      "say": [
       "type a name",
       "add by name",
       "add a visitor by name",
       "add a visitor manually"
+     ]
+    }
+   ],
+   "flows": [
+    {
+     "id": "add-visitor-manual",
+     "route": "/events/:slug/registrations/new",
+     "say": [
+      "add a visitor by name",
+      "add a visitor manually",
+      "type in a visitor",
+      "add by name"
+     ],
+     "steps": [
+      {
+       "fill": "Name",
+       "type": "name"
+      },
+      {
+       "fill": "Company"
+      },
+      {
+       "fill": "Email",
+       "type": "email",
+       "optional": true
+      },
+      {
+       "fill": "Phone",
+       "type": "phone",
+       "optional": true
+      },
+      {
+       "ask": "Add this visitor?",
+       "choices": [
+        {
+         "label": "Add",
+         "click": "Add visitor",
+         "say": "Visitor added."
+        },
+        {
+         "label": "Not now",
+         "say": "Left it unsaved."
+        }
+       ]
+      }
      ]
     }
    ],
@@ -339,6 +596,7 @@
     {
      "name": "Name",
      "edit": true,
+     "type": "name",
      "say": [
       "update the name",
       "change the name",
@@ -366,6 +624,7 @@
     {
      "name": "Email",
      "edit": true,
+     "type": "email",
      "say": [
       "update the email",
       "change the email"
@@ -374,6 +633,7 @@
     {
      "name": "Phone",
      "edit": true,
+     "type": "phone",
      "say": [
       "update the phone",
       "change the phone number"
@@ -382,6 +642,7 @@
     {
      "name": "LinkedIn URL",
      "edit": true,
+     "type": "url",
      "say": [
       "update the linkedin",
       "change the linkedin url"
