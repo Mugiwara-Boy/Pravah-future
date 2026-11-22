@@ -553,11 +553,28 @@
     var r = route().replace(/^\/events\/[^/]+/, "/events/:slug").replace(/registrations\/(?!new$)[^/]+$/, "registrations/:visitorId");
     return MAP.screens.filter(function (s) { return s.route === r; })[0] || null;
   }
+  function whoAsked() {
+    var team = [], org = {};
+    try { team = JSON.parse(localStorage.getItem("pravah_team_v7") || "[]"); org = JSON.parse(localStorage.getItem("pravah_org_settings_v1") || "{}"); } catch (x) {}
+    var side = ((document.querySelector("aside") || {}).innerText || "").split("\n").map(function (t) { return t.trim(); });
+    var me = team.filter(function (m) { return side.indexOf(m.name) >= 0; })[0] || team.filter(function (m) { return m.isOwner; })[0] || {};
+    var site = (org.businessWebsite || org.website || "").replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
+    var domain = (me.email || "").split("@")[1] || "";
+    return { login: me.email || "unknown", user: (me.name || "unknown") + (me.access ? " (" + me.access + ")" : ""), account: site || domain || "unknown" };
+  }
+  /* every filed request is emailed to Prabuddh through the relay; the daily signals run files it in GitHub */
+  function sendRequest(rec) {
+    var url = MAP && MAP.feature_request_relay;
+    if (!url) return;
+    try { fetch(url, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(rec) }); } catch (x) {}
+  }
   function miss(q, why) {
     var rec = { at: new Date().toISOString(), words: q, screen: route(), why: why };
     try { var m = JSON.parse(localStorage.getItem("askpravah_misses") || "[]"); m.unshift(rec); localStorage.setItem("askpravah_misses", JSON.stringify(m.slice(0, 200))); } catch (x) {}
     var file = function (level) {
       rec.critical = level;
+      var who = whoAsked(); rec.login = who.login; rec.user = who.user; rec.account = who.account; rec.app = "dream app";
+      sendRequest(rec);
       try { var f = JSON.parse(localStorage.getItem("askpravah_feature_requests") || "[]"); f.unshift(rec); localStorage.setItem("askpravah_feature_requests", JSON.stringify(f.slice(0, 200))); } catch (x) {}
     };
     ask("I'm not sure Pravah can do that today. Is it critical for you?", [
