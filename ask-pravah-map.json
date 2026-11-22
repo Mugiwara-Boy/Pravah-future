@@ -12,6 +12,47 @@
     "open events",
     "go to events"
    ],
+   "actions": [
+    {
+     "name": "Show live events",
+     "click": "Live",
+     "done": "Showing live events.",
+     "say": [
+      "show live events",
+      "which events are live",
+      "live events"
+     ]
+    },
+    {
+     "name": "Show upcoming events",
+     "click": "Upcoming",
+     "done": "Showing upcoming events.",
+     "say": [
+      "upcoming events",
+      "next events",
+      "future shows"
+     ]
+    },
+    {
+     "name": "Show completed events",
+     "click": "Completed",
+     "done": "Showing completed events.",
+     "say": [
+      "past events",
+      "completed events",
+      "finished shows"
+     ]
+    },
+    {
+     "name": "Search events",
+     "field": "Search by name or location",
+     "done": "Say the event or place.",
+     "say": [
+      "search events",
+      "find an event"
+     ]
+    }
+   ],
    "verified": true,
    "in": [
     "dream"
@@ -99,6 +140,58 @@
     "show all visitors",
     "every lead",
     "export my visitors"
+   ],
+   "actions": [
+    {
+     "name": "Export to Excel",
+     "click": "Export to Excel",
+     "done": "Exporting the visitors to Excel.",
+     "say": [
+      "export to excel",
+      "export my visitors",
+      "download the list",
+      "export leads"
+     ]
+    },
+    {
+     "name": "Show ICP leads only",
+     "click": "ICP leads only",
+     "done": "Showing ICP leads only.",
+     "say": [
+      "icp leads only",
+      "only icp",
+      "show icp leads",
+      "show my ICP visitors"
+     ]
+    },
+    {
+     "name": "Search visitors",
+     "field": "Search name, company, title or email",
+     "done": "Say the name or company.",
+     "say": [
+      "search visitors",
+      "find a visitor",
+      "look up someone"
+     ]
+    },
+    {
+     "name": "Next page",
+     "click": "Next",
+     "done": "Next page.",
+     "say": [
+      "next page",
+      "more"
+     ]
+    },
+    {
+     "name": "Previous page",
+     "click": "Previous",
+     "done": "Previous page.",
+     "say": [
+      "previous page",
+      "back a page"
+     ]
+    }
    ],
    "feature": "F-105",
    "verified": true,
@@ -351,6 +444,77 @@
     "my integrations",
     "connect calendar"
    ],
+   "actions": [
+    {
+     "name": "Connect Salesforce",
+     "click": "Connect",
+     "within": "Salesforce",
+     "done": "Opening the Salesforce sign-in.",
+     "say": [
+      "connect salesforce",
+      "link salesforce",
+      "set up salesforce"
+     ]
+    },
+    {
+     "name": "Connect HubSpot",
+     "click": "Connect",
+     "within": "HubSpot",
+     "done": "Opening the HubSpot sign-in.",
+     "say": [
+      "connect hubspot",
+      "link hubspot",
+      "set up hubspot"
+     ]
+    },
+    {
+     "name": "Connect Slack",
+     "click": "Connect",
+     "within": "Slack",
+     "done": "Opening the Slack sign-in.",
+     "say": [
+      "connect slack",
+      "link slack",
+      "slack alerts"
+     ]
+    },
+    {
+     "name": "Connect Microsoft",
+     "click": "Connect",
+     "within": "Microsoft",
+     "confirm": "Connecting Microsoft replaces your Google connection. Go ahead?",
+     "done": "Opening the Microsoft sign-in.",
+     "say": [
+      "connect outlook",
+      "connect microsoft",
+      "use outlook"
+     ]
+    },
+    {
+     "name": "Disconnect Google",
+     "click": "Disconnect",
+     "within": "Google",
+     "confirm": "Disconnect Google? Emails and calendar stop until you connect again.",
+     "done": "Google disconnected.",
+     "say": [
+      "disconnect google",
+      "disconnect gmail",
+      "remove google"
+     ]
+    },
+    {
+     "name": "Copy AI assistant setup",
+     "click": "Copy setup command",
+     "within": "AI assistant",
+     "done": "Copied the setup command.",
+     "say": [
+      "copy setup command",
+      "set up claude code",
+      "connect cursor",
+      "mcp setup"
+     ]
+    }
+   ],
    "feature": "F-009",
    "verified": true,
    "in": [
@@ -367,6 +531,7 @@
     "show analytics",
     "how are my events doing"
    ],
+   "note": "Shows registrations across events. Ask Pravah opens it; it has no actions of its own yet.",
    "verified": true,
    "in": [
     "dream"
@@ -382,6 +547,28 @@
     "booth report",
     "rep scorecard",
     "busiest hours"
+   ],
+   "actions": [
+    {
+     "name": "Pick a day",
+     "click": "All days",
+     "done": "Pick the day from the list.",
+     "say": [
+      "pick a day",
+      "show one day",
+      "day two"
+     ]
+    },
+    {
+     "name": "Rep scorecard",
+     "show": "Rep scorecard",
+     "done": "Here's the rep scorecard.",
+     "say": [
+      "rep scorecard",
+      "how are my reps doing",
+      "best rep"
+     ]
+    }
    ],
    "feature": "F-104",
    "verified": true,
@@ -400,6 +587,87 @@
     "what did visitors ask",
     "unanswered questions"
    ],
+   "actions": [
+    {
+     "name": "Show waiting",
+     "click": "Waiting",
+     "done": "Showing questions still waiting.",
+     "say": [
+      "waiting questions",
+      "unanswered",
+      "what's waiting"
+     ]
+    },
+    {
+     "name": "Show answered",
+     "click": "Answered",
+     "done": "Showing answered questions.",
+     "say": [
+      "answered questions",
+      "what we answered"
+     ]
+    }
+   ],
+   "flows": [
+    {
+     "id": "answer-question",
+     "say": [
+      "answer the first question",
+      "answer a question",
+      "write the answer",
+      "reply to the question"
+     ],
+     "steps": [
+      {
+       "click": "Write the answer"
+      },
+      {
+       "fill": "Write the answer the visitor should get",
+       "type": "text"
+      },
+      {
+       "ask": "Save this answer?",
+       "choices": [
+        {
+         "label": "Save",
+         "click": "Save answer",
+         "say": "Answer saved."
+        },
+        {
+         "label": "Cancel",
+         "click": "Cancel",
+         "say": "Not saved."
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "confirm-answer",
+     "say": [
+      "confirm the answer",
+      "confirm the suggested answer",
+      "approve the answer"
+     ],
+     "steps": [
+      {
+       "ask": "Confirm the suggested answer for the first question?",
+       "choices": [
+        {
+         "label": "Confirm",
+         "click": "Confirm answer",
+         "say": "Confirmed."
+        },
+        {
+         "label": "Correct it",
+         "click": "Correct it",
+         "say": "Say the corrected answer."
+        }
+       ]
+      }
+     ]
+    }
+   ],
    "feature": "F-102",
    "verified": true,
    "in": [
@@ -415,6 +683,49 @@
    "say": [
     "stale leads",
     "who went quiet"
+   ],
+   "actions": [
+    {
+     "name": "Remind owner",
+     "click": "Remind owner",
+     "confirm": "Remind the owner of the first stale lead?",
+     "done": "Reminder sent to the owner.",
+     "say": [
+      "remind the owner",
+      "nudge the rep",
+      "remind them"
+     ]
+    },
+    {
+     "name": "Remind all owners",
+     "click": "Remind all owners",
+     "confirm": "Remind every owner with a stale lead?",
+     "done": "Reminders sent to all owners.",
+     "say": [
+      "remind all owners",
+      "remind everyone",
+      "nudge all reps"
+     ]
+    },
+    {
+     "name": "Mark followed up",
+     "click": "Mark followed up",
+     "done": "Marked followed up.",
+     "say": [
+      "mark followed up",
+      "mark as followed up",
+      "done with this lead"
+     ]
+    },
+    {
+     "name": "Show followed up",
+     "click": "Followed up",
+     "done": "Showing followed-up leads.",
+     "say": [
+      "show followed up",
+      "already followed up"
+     ]
+    }
    ],
    "feature": "F-103",
    "verified": true,
@@ -432,6 +743,76 @@
     "my meetings",
     "meetings booked"
    ],
+   "actions": [
+    {
+     "name": "Show upcoming meetings",
+     "click": "Upcoming",
+     "done": "Showing upcoming meetings.",
+     "say": [
+      "upcoming meetings",
+      "next meetings"
+     ]
+    },
+    {
+     "name": "Show past meetings",
+     "click": "Past",
+     "done": "Showing past meetings.",
+     "say": [
+      "past meetings",
+      "previous meetings"
+     ]
+    },
+    {
+     "name": "Show only mine",
+     "click": "Mine",
+     "done": "Showing your meetings.",
+     "say": [
+      "my meetings only",
+      "only mine"
+     ]
+    },
+    {
+     "name": "Show everyone's",
+     "click": "Everyone",
+     "done": "Showing everyone's meetings.",
+     "say": [
+      "everyone's meetings",
+      "team meetings",
+      "all meetings"
+     ]
+    }
+   ],
+   "flows": [
+    {
+     "id": "add-meeting",
+     "say": [
+      "add a meeting",
+      "log a meeting",
+      "new meeting"
+     ],
+     "steps": [
+      {
+       "click": "Add meeting",
+       "say": "Fill in who, when and where on the form, then say next."
+      },
+      {
+       "ask": "Save the meeting?",
+       "choices": [
+        {
+         "label": "Save",
+         "click": "Save meeting",
+         "say": "Meeting saved."
+        },
+        {
+         "label": "Cancel",
+         "click": "Cancel",
+         "say": "Not saved."
+        }
+       ]
+      }
+     ]
+    }
+   ],
    "feature": "F-011",
    "verified": true,
    "in": [
@@ -447,6 +828,17 @@
    "say": [
     "what's new",
     "latest updates"
+   ],
+   "actions": [
+    {
+     "name": "Open the newest update",
+     "click": "Open",
+     "done": "Opened it.",
+     "say": [
+      "open the latest update",
+      "show me the new feature"
+     ]
+    }
    ],
    "verified": true,
    "in": [
@@ -478,6 +870,37 @@
     "show visitors",
     "who came to the booth",
     "search for a visitor"
+   ],
+   "actions": [
+    {
+     "name": "Search visitors",
+     "field": "Search name, email, company or title",
+     "done": "Say the name or company.",
+     "say": [
+      "search visitors",
+      "find a visitor",
+      "search this event"
+     ]
+    },
+    {
+     "name": "Filter by rating",
+     "click": "Any rating",
+     "done": "Pick hot, warm or cold.",
+     "say": [
+      "filter by rating",
+      "only hot leads",
+      "show hot leads"
+     ]
+    },
+    {
+     "name": "Filter by source",
+     "click": "All sources",
+     "done": "Pick the source.",
+     "say": [
+      "filter by source",
+      "only scanned"
+     ]
+    }
    ],
    "verified": true,
    "in": [
@@ -652,12 +1075,48 @@
    "actions": [
     {
      "name": "Book meeting",
-     "click": "Book meeting",
-     "done": "Opened Book meeting.",
+     "flow": "book-meeting",
      "say": [
       "book a meeting",
       "book a meeting with them",
       "schedule a meeting"
+     ]
+    },
+    {
+     "name": "Copy LinkedIn message",
+     "click": "Copy LinkedIn message",
+     "done": "Copied the LinkedIn message.",
+     "say": [
+      "copy the linkedin message",
+      "linkedin message"
+     ]
+    },
+    {
+     "name": "Company insights",
+     "click": "Company insights",
+     "done": "Here are the company insights.",
+     "say": [
+      "company insights",
+      "about their company"
+     ]
+    },
+    {
+     "name": "Intelligence",
+     "click": "Intelligence",
+     "done": "Here's the intelligence.",
+     "say": [
+      "intelligence",
+      "what do we know about them"
+     ]
+    },
+    {
+     "name": "Delete conversation",
+     "click": "Delete conversation",
+     "confirm": "Delete this conversation? This can't be undone.",
+     "done": "Opened delete. Confirm on screen.",
+     "say": [
+      "delete this conversation",
+      "delete the recording"
      ]
     },
     {
@@ -735,6 +1194,38 @@
      ]
     }
    ],
+   "flows": [
+    {
+     "id": "book-meeting",
+     "say": [
+      "book a meeting",
+      "book a meeting with them",
+      "schedule a meeting",
+      "set up a meeting"
+     ],
+     "steps": [
+      {
+       "click": "Book meeting",
+       "say": "Pick the day and time on screen, then say next."
+      },
+      {
+       "ask": "Send the meeting invite to the visitor?",
+       "choices": [
+        {
+         "label": "Send invite",
+         "click": "Confirm meeting",
+         "say": "Meeting booked and invite sent."
+        },
+        {
+         "label": "Not now",
+         "click": "Cancel",
+         "say": "Nothing sent."
+        }
+       ]
+      }
+     ]
+    }
+   ],
    "fields_verified": true,
    "verified": true,
    "in": [
@@ -751,6 +1242,7 @@
     "live feed",
     "what's happening now"
    ],
+   "note": "Shows conversations as they come in. Open any one by name: 'open Jim Auber'.",
    "verified": true,
    "in": [
     "dream"
@@ -767,6 +1259,65 @@
     "event ICP",
     "event settings",
     "edit this event"
+   ],
+   "actions": [
+    {
+     "name": "Save scan defaults",
+     "click": "Save defaults",
+     "done": "Saved.",
+     "say": [
+      "save defaults",
+      "save scan settings"
+     ]
+    },
+    {
+     "name": "Turn auto recording on or off",
+     "click": "Auto-start recording",
+     "done": "Switched auto-start recording. Say save defaults to keep it.",
+     "say": [
+      "auto start recording",
+      "turn on auto recording",
+      "turn off auto recording"
+     ]
+    },
+    {
+     "name": "Turn automatic enrichment on or off",
+     "click": "Automatic enrichment",
+     "done": "Switched automatic enrichment. Say save defaults to keep it.",
+     "say": [
+      "automatic enrichment",
+      "turn on enrichment",
+      "turn off enrichment"
+     ]
+    },
+    {
+     "name": "Add a question",
+     "click": "Add question",
+     "done": "Added a question box. Say the question.",
+     "say": [
+      "add a question",
+      "add a standard question",
+      "new booth question"
+     ]
+    },
+    {
+     "name": "Save questions",
+     "click": "Save questions",
+     "done": "Questions saved.",
+     "say": [
+      "save questions"
+     ]
+    },
+    {
+     "name": "Delete event",
+     "click": "Delete event",
+     "confirm": "Delete this event and everything in it? This can't be undone.",
+     "done": "Opened delete. Confirm on screen.",
+     "say": [
+      "delete this event",
+      "remove the event"
+     ]
+    }
    ],
    "fields": [
     {
@@ -819,6 +1370,7 @@
     "how did this event do",
     "event analytics"
    ],
+   "note": "On 22 Nov 2026 this route showed the Live feed in the dream app. Ask Prabuddh whether event analytics should be its own screen.",
    "verified": true,
    "in": [
     "dream"
@@ -832,6 +1384,26 @@
    "does": "Booth load by hour and rep scorecard for this event.",
    "say": [
     "booth report for this event"
+   ],
+   "actions": [
+    {
+     "name": "Pick a day",
+     "click": "All days",
+     "done": "Pick the day from the list.",
+     "say": [
+      "pick a day",
+      "show one day"
+     ]
+    },
+    {
+     "name": "Rep scorecard",
+     "show": "Rep scorecard",
+     "done": "Here's the rep scorecard.",
+     "say": [
+      "rep scorecard",
+      "how are my reps doing"
+     ]
+    }
    ],
    "feature": "F-104",
    "verified": true,
@@ -850,6 +1422,65 @@
     "summary emails",
     "communications"
    ],
+   "actions": [
+    {
+     "name": "Show scheduled emails",
+     "click": "Scheduled emails",
+     "done": "Showing scheduled emails.",
+     "say": [
+      "scheduled emails",
+      "what's scheduled"
+     ]
+    },
+    {
+     "name": "Show all schedules",
+     "click": "All Schedules",
+     "done": "Showing all schedules.",
+     "say": [
+      "all schedules",
+      "email schedules"
+     ]
+    },
+    {
+     "name": "Search emails",
+     "field": "Quick search visitor, company, notes...",
+     "done": "Say the visitor or company.",
+     "say": [
+      "search emails",
+      "find an email"
+     ]
+    }
+   ],
+   "flows": [
+    {
+     "id": "schedule-follow-ups",
+     "say": [
+      "schedule the follow up emails",
+      "send the follow ups",
+      "schedule emails"
+     ],
+     "steps": [
+      {
+       "click": "Select all",
+       "say": "Selected every visitor. Untick anyone to leave out, then say next."
+      },
+      {
+       "ask": "Schedule follow-up emails for the selected visitors? They go to visitors.",
+       "choices": [
+        {
+         "label": "Schedule",
+         "click": "Schedule",
+         "say": "Pick the time on screen to finish."
+        },
+        {
+         "label": "Not now",
+         "say": "Nothing scheduled."
+        }
+       ]
+      }
+     ]
+    }
+   ],
    "feature": "F-008",
    "verified": true,
    "in": [
@@ -866,6 +1497,17 @@
     "event integrations",
     "which crm does this event use"
    ],
+   "actions": [
+    {
+     "name": "Manage connections",
+     "click": "Manage connections",
+     "done": "Opened integrations.",
+     "say": [
+      "manage connections",
+      "change integrations"
+     ]
+    }
+   ],
    "verified": true,
    "in": [
     "dream"
@@ -879,6 +1521,24 @@
    "does": "Unanswered visitor questions from this event.",
    "say": [
     "open questions for this event"
+   ],
+   "actions": [
+    {
+     "name": "Show waiting",
+     "click": "Waiting",
+     "done": "Showing questions still waiting.",
+     "say": [
+      "waiting questions for this event"
+     ]
+    },
+    {
+     "name": "Show answered",
+     "click": "Answered",
+     "done": "Showing answered questions.",
+     "say": [
+      "answered questions for this event"
+     ]
+    }
    ],
    "feature": "F-102",
    "verified": true,
@@ -894,6 +1554,35 @@
    "does": "Leads from this event that have gone quiet.",
    "say": [
     "stale leads for this event"
+   ],
+   "actions": [
+    {
+     "name": "Remind owner",
+     "click": "Remind owner",
+     "confirm": "Remind the owner of the first stale lead?",
+     "done": "Reminder sent.",
+     "say": [
+      "remind the owner for this event",
+      "nudge the rep"
+     ]
+    },
+    {
+     "name": "Remind all owners",
+     "click": "Remind all owners",
+     "confirm": "Remind every owner with a stale lead at this event?",
+     "done": "Reminders sent.",
+     "say": [
+      "remind all owners for this event"
+     ]
+    },
+    {
+     "name": "Mark followed up",
+     "click": "Mark followed up",
+     "done": "Marked followed up.",
+     "say": [
+      "mark followed up for this event"
+     ]
+    }
    ],
    "feature": "F-103",
    "verified": true,

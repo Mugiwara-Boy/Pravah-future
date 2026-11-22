@@ -26,7 +26,7 @@
     ["stale", "quiet", "cold", "dormant"],
     ["report", "scorecard", "busiest", "load", "hours"],
     ["analytics", "results", "performance", "doing", "stats"],
-    ["integration", "integrations", "connect", "crm", "salesforce", "hubspot", "slack"],
+    ["integration", "integrations", "connect", "crm", "link"],
     ["email", "emails", "communication", "communications", "mail"],
     ["update", "change", "edit", "fix", "set", "rename", "correct"],
     ["add", "new", "create", "invite"],
@@ -36,7 +36,7 @@
     ["note", "notes"],
     ["name"], ["company"], ["title", "role", "designation"], ["phone", "mobile", "number"], ["linkedin"]
   ];
-  var STOP = { the: 1, a: 1, an: 1, my: 1, me: 1, to: 1, for: 1, of: 1, this: 1, that: 1, please: 1, can: 1, you: 1, i: 1, want: 1, need: 1, it: 1, is: 1, our: 1, in: 1, on: 1, and: 1, us: 1, all: 1, at: 1, with: 1 };
+  var STOP = { the: 1, a: 1, an: 1, my: 1, me: 1, to: 1, for: 1, of: 1, this: 1, that: 1, please: 1, can: 1, you: 1, i: 1, want: 1, need: 1, it: 1, is: 1, our: 1, in: 1, on: 1, and: 1, us: 1, at: 1, with: 1 };
   function stem(w) {
     var s = ["ing", "ies", "es", "ed", "s"];
     for (var i = 0; i < s.length; i++) if (w.length > s[i].length + 2 && w.slice(-s[i].length) === s[i]) return w.slice(0, -s[i].length);
@@ -160,8 +160,20 @@
   }
   function visible(el) { return el && el.offsetParent !== null; }
   function norm(t) { return (t || "").replace(/\s+/g, " ").replace(/\*/g, "").trim().toLowerCase(); }
-  function button(text) {
-    var t = norm(text), all = [].slice.call(document.querySelectorAll("button,a,[role=button],[role=tab]")).filter(visible);
+  function section(name) {
+    var n = norm(name), heads = [].slice.call(document.querySelectorAll("h1,h2,h3,h4,strong,p,span,div")).filter(function (e) { return visible(e) && e.children.length === 0 && norm(e.innerText).indexOf(n) === 0; });
+    for (var i = 0; i < heads.length; i++) {
+      var box = heads[i];
+      for (var k = 0; k < 6 && box; k++) { box = box.parentElement; if (box && box.querySelector("button")) return box; }
+    }
+    return null;
+  }
+  function button(text, within) {
+    var root = within ? section(within) : document;
+    if (within && !root) return null;
+    var t = norm(text), all = [].slice.call(root.querySelectorAll("button,a,[role=button],[role=tab],label,[role=switch],input[type=checkbox]")).filter(visible);
+    var byAria = all.filter(function (b) { return norm(b.getAttribute("aria-label")) === t || norm(b.placeholder) === t; })[0];
+    if (byAria) return byAria;
     return all.filter(function (b) { return norm(b.innerText) === t; })[0] || all.filter(function (b) { return norm(b.innerText).indexOf(t) === 0; })[0] || null;
   }
   function fieldLabel(el) {
@@ -450,6 +462,7 @@
       var nv = spoken(q, state.pending.f.type); setValue(state.pending.el, nv); say(state.pending.f.name + " set to “" + nv + "”. Say “save” to keep it."); return;
     }
     if (/^(do it for me|do it|you do it)$/.test(lq) && state.lastHow) { var lh = state.lastHow; state.lastHow = null; state.howTo = false; return run(lh, state.lastHowQ || ""); }
+    if (/^(next|skip|continue)$/.test(lq)) return say("Nothing is waiting for that right now.");
     var clickM = lq.match(/^(?:click|press|tap)\s+(.+)$/);
     if (clickM) { var b = button(clickM[1]); if (b) { b.click(); say("Clicked " + b.innerText.trim() + "."); } else miss(q, "no button called that here"); return; }
 
@@ -464,7 +477,7 @@
       cands.push({ sc: sc, kind: "screen", s: score(q, sc.say.concat([sc.name])) });
       (sc.fields || []).forEach(function (f) { if (f.edit) cands.push({ sc: sc, kind: "field", f: f, s: score(q, f.say) + (here && here.id === sc.id ? 0.08 : 0) }); });
       (sc.actions || []).forEach(function (a) { if (!a.flow) cands.push({ sc: sc, kind: "action", a: a, s: score(q, (a.say || []).concat([a.name])) + (here && here.id === sc.id ? 0.1 : 0) }); });
-      (sc.flows || []).forEach(function (fl) { cands.push({ sc: sc, kind: "flow", fl: fl, s: score(q, fl.say) + 0.05 }); });
+      (sc.flows || []).forEach(function (fl) { cands.push({ sc: sc, kind: "flow", fl: fl, s: score(q, fl.say) + 0.1 + (here && here.id === sc.id ? 0.1 : 0) }); });
     });
     cands = cands.filter(function (c) { return c.sc.verified !== false || c.kind !== "field" || c.sc.fields_verified !== false; });
     /* level hints: a named event or "this event" points to the event level; "company", "my", "org" without "event" to the org level */
@@ -479,16 +492,15 @@
     var top = cands[0];
     if (!top || top.s < (howTo ? 0.5 : 0.4)) {
       if (howTo) {
-        miss(q, "how-to with no match");
-        var near = cands.slice(0, 3).filter(function (c) { return c.s >= 0.25; });
-        if (near.length) return ask("I don't know that one yet. Closest:", near.map(function (c) { return { label: label(c), run: function () { state.howTo = true; run(c, q); } }; }));
-        return say("I don't know that one yet. I've noted it so the team can add it.", true);
+        var near = cands.slice(0, 2).filter(function (c) { return c.s >= 0.25; });
+        if (near.length) return ask("Not sure. Did you mean", near.map(function (c) { return { label: label(c), run: function () { state.howTo = true; run(c, q); } }; }).concat([{ label: "None of these", run: function () { miss(q, "how-to with no match"); } }]));
+        return miss(q, "how-to with no match");
       }
       if (/^(open|show|find|pull up|go to)\s+\w+/.test(lq) && openVisitor(q)) return;
       return miss(q, "no screen or action in the map matches");
     }
     var close = cands.filter(function (c) { return c.s >= top.s - 0.06 && label(c) !== label(top); }).slice(0, 2);
-    if (close.length && top.s < 0.7) return ask("Did you mean", [top].concat(close).map(function (c) { return { label: label(c), run: function () { run(c, q); } }; }));
+    if (close.length && top.s < 0.7) return ask("Did you mean", [top].concat(close).slice(0, 2).map(function (c) { return { label: label(c), run: function () { run(c, q); } }; }).concat([{ label: "None of these", run: function () { miss(q, "none of the guesses"); } }]));
     run(top, q);
   }
   function bestScore(q) {
@@ -518,12 +530,19 @@
       return c.sc.level === "event" ? resolveEvent(q, doIt) : doIt(null);
     }
     if (c.kind === "action") {
+      if (c.a.flow) { var fl = (c.sc.flows || []).filter(function (x) { return x.id === c.a.flow; })[0]; if (fl) return runFlow(fl, c.sc, q); }
       var here2 = currentScreen();
       var target = c.a.route || (here2 && here2.id === c.sc.id ? null : c.sc.route);
       if (target && target.indexOf(":visitorId") >= 0) return say("Open a visitor first, then say it again.");
       var act = function (slug) {
         if (target) go(slug ? fill(target, slug) : target);
-        if (c.a.click) waitFor(function () { return button(c.a.click); }).then(function (b) { if (b) { b.click(); say(c.a.done || c.a.name + "."); } else say("Opened " + c.sc.name + "."); });
+        if (c.a.show) return waitFor(function () { return [].slice.call(document.querySelectorAll("h1,h2,h3")).filter(function (h) { return visible(h) && norm(h.innerText).indexOf(norm(c.a.show)) === 0; })[0]; }).then(function (h) { if (h) { h.scrollIntoView({ block: "start", behavior: "smooth" }); spotlight(h, c.a.name); setTimeout(clearSpot, 2000); } say(c.a.done || "Here it is."); });
+        if (c.a.click) waitFor(function () { return button(c.a.click, c.a.within); }).then(function (b) {
+          if (!b) return say("I couldn't find " + c.a.click + " here.");
+          var doClick = function () { b.click(); say(c.a.done || c.a.name + "."); };
+          if (c.a.confirm) return ask(c.a.confirm, [{ label: "Yes", run: doClick }, { label: "No", run: function () { say("OK, left it."); } }]);
+          doClick();
+        });
         else if (c.a.field) waitFor(function () { return field(c.a.field); }).then(function (el) { if (el) { focusField(el); say(c.a.done || "Ready."); state.pending = { kind: "value", el: el, f: { name: c.a.field } }; } });
         else say(c.a.done || (c.a.name + (slug && c.sc.level === "event" ? " for " + eventName(slug) : "") + "."));
       };
@@ -535,9 +554,19 @@
     return MAP.screens.filter(function (s) { return s.route === r; })[0] || null;
   }
   function miss(q, why) {
-    try { var m = JSON.parse(localStorage.getItem("askpravah_misses") || "[]"); m.unshift({ at: new Date().toISOString(), words: q, screen: route(), why: why }); localStorage.setItem("askpravah_misses", JSON.stringify(m.slice(0, 200))); } catch (x) {}
-    say("Pravah can't do that yet. I've noted it for the team.", true);
+    var rec = { at: new Date().toISOString(), words: q, screen: route(), why: why };
+    try { var m = JSON.parse(localStorage.getItem("askpravah_misses") || "[]"); m.unshift(rec); localStorage.setItem("askpravah_misses", JSON.stringify(m.slice(0, 200))); } catch (x) {}
+    var file = function (level) {
+      rec.critical = level;
+      try { var f = JSON.parse(localStorage.getItem("askpravah_feature_requests") || "[]"); f.unshift(rec); localStorage.setItem("askpravah_feature_requests", JSON.stringify(f.slice(0, 200))); } catch (x) {}
+    };
+    ask("I'm not sure Pravah can do that today. Is it critical for you?", [
+      { label: "Critical", run: function () { file("critical"); say("Got it, marked critical. I've passed it to the team and I'll get back to you on this."); } },
+      { label: "Nice to have", run: function () { file("nice to have"); say("Noted for the team. I'll get back to you on this."); } },
+      { label: "Not needed", run: function () { file("not needed"); say("OK, noted."); } }
+    ]);
   }
+
 
   /* ---------- speech ---------- */
   function SR() { return window.SpeechRecognition || window.webkitSpeechRecognition; }
