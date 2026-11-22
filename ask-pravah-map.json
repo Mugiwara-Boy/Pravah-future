@@ -1,5 +1,5 @@
 {
- "feature_request_relay": "",
+ "feature_request_relay": "https://script.google.com/macros/s/AKfycbyYViZhtIAN0pJazL3mVuK9bID1tFS45top8w4rH7gMyK8NAE3SZLM-0usNm86NSDo8/exec",
  "event_rule": "An event-level ask goes to the live event (today falls between its start and end dates). If none is live, the event the user opened last. If two are live or none was opened, ask \"Which event?\" with the events as choices. Never guess between two.\n",
  "screens": [
   {
