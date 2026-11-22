@@ -626,7 +626,7 @@
     var domain = (me.email || "").split("@")[1] || "";
     return { login: me.email || "unknown", user: (me.name || "unknown") + (me.access ? " (" + me.access + ")" : ""), account: site || domain || "unknown" };
   }
-  /* every filed request is emailed to Prabuddh through the relay; the daily signals run files it in GitHub */
+  /* the relay: misses go to the misses sheet; client requests (live product only) are emailed and filed in GitHub */
   function sendRequest(rec) {
     var url = MAP && MAP.feature_request_relay;
     if (!url) return;
@@ -635,8 +635,10 @@
   function miss(q, why) {
     var rec = { at: new Date().toISOString(), words: q, screen: route(), why: why };
     try { var m = JSON.parse(localStorage.getItem("askpravah_misses") || "[]"); m.unshift(rec); localStorage.setItem("askpravah_misses", JSON.stringify(m.slice(0, 200))); } catch (x) {}
+    /* every miss goes to the misses sheet (log only, no email); Jinbe's 4-day sweep teaches it to the map */
+    var mw = whoAsked(); sendRequest({ kind: "miss", at: rec.at, words: q, screen: rec.screen, app: /github\.io$|localhost|127\.0\.0\.1/.test(location.hostname) ? "dream app" : "product", account: mw.account, login: mw.login });
     var file = function (level) {
-      rec.critical = level;
+      rec.critical = level; rec.kind = "request";
       var who = whoAsked(); rec.login = who.login; rec.user = who.user; rec.account = who.account; rec.app = "dream app";
       sendRequest(rec);
       try { var f = JSON.parse(localStorage.getItem("askpravah_feature_requests") || "[]"); f.unshift(rec); localStorage.setItem("askpravah_feature_requests", JSON.stringify(f.slice(0, 200))); } catch (x) {}
