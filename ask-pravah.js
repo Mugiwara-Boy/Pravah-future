@@ -474,13 +474,19 @@
   function handle(raw) {
     var q = raw.trim();
     if (!q) return;
+    /* undone within 30 seconds: the last command may have matched the wrong thing; the learning run judges it */
+    var lq0 = q.toLowerCase(), now = Date.now();
+    if (/^(cancel|never mind|nevermind|go back|back|no|wrong|that's wrong|thats wrong|not that|undo)$/.test(lq0) && state.log[0] && state.lastAt && now - state.lastAt < 30000 && !/^(cancel|never mind|nevermind|go back|back|no|wrong|undo)/.test(state.log[0].toLowerCase())) {
+      var uw = whoAsked(); sendRequest({ kind: "miss", at: new Date().toISOString(), words: state.log[0] + "  [undone by: " + q + "]", screen: state.lastScreen || route(), app: /github\.io$|localhost|127\.0\.0\.1/.test(location.hostname) ? "dream app" : "product", account: uw.account, login: uw.login });
+    }
+    state.lastAt = now; state.lastScreen = route();
     state.log.unshift(q);
     state.walkId = (state.walkId || 0) + 1; clearSpot();
     if (!state.pending && !(state.choices && state.choices.length)) { state.flowId = (state.flowId || 0) + 1; state.guided = false; }
     var lq = q.toLowerCase();
     if (/^(stop|stop listening|that's all|thats all|goodbye|bye)\b/.test(lq)) { toggle(false); return; }
     if (/^(save|save it|yes save|done)$/.test(lq)) { var sv = button("Save") || button("Save ideal customer profile") || button("Save details") || button("Save defaults"); if (sv) { sv.click(); say("Saved."); state.pending = null; } else say("Nothing to save here."); return; }
-    if (/^(cancel|never mind|nevermind)$/.test(lq)) { var c = button("Cancel"); if (c) c.click(); state.pending = null; say("Cancelled."); return; }
+    if (/^(cancel|never mind|nevermind|wrong|that's wrong|thats wrong|not that|undo)$/.test(lq)) { var c = button("Cancel"); if (c) c.click(); state.pending = null; say("Cancelled."); return; }
     if (/^(go back|back)$/.test(lq)) { history.back(); say("Back."); return; }
 
     /* answering a question by voice: say the choice, or yes / no */
