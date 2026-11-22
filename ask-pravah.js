@@ -220,7 +220,7 @@
   function handle(raw) {
     var q = raw.trim();
     if (!q) return;
-    state.log.unshift(q); renderLog();
+    state.log.unshift(q);
     var lq = q.toLowerCase();
     if (/^(stop|stop listening|that's all|thats all|goodbye|bye)\b/.test(lq)) { toggle(false); return; }
     if (/^(save|save it|yes save|done)$/.test(lq)) { var sv = button("Save") || button("Save ideal customer profile") || button("Save details") || button("Save defaults"); if (sv) { sv.click(); say("Saved."); state.pending = null; } else say("Nothing to save here."); return; }
@@ -299,61 +299,68 @@
   function SR() { return window.SpeechRecognition || window.webkitSpeechRecognition; }
   function startRec() {
     var C = SR();
-    if (!C) { status("Voice isn't supported in this browser. Type below."); return; }
+    if (!C) { typeBox(); return; }
     var r = new C();
     r.continuous = true; r.interimResults = true; r.lang = "en-US";
     r.onresult = function (e) {
       var interim = "";
       for (var i = e.resultIndex; i < e.results.length; i++) {
         var t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) { bump(); handle(t); } else interim += t;
+        if (e.results[i].isFinal) { bump(); heard(t); var tt = t; setTimeout(function () { handle(tt); }, 350); } else interim += t;
       }
       heard(interim);
     };
-    r.onerror = function (e) { if (e.error === "not-allowed") { status("Allow the microphone to talk to Pravah, or type below."); toggle(false); } };
+    r.onerror = function (e) { if (e.error === "not-allowed") { toggle(false); say("Allow the microphone to talk to Pravah.", true); } };
     r.onend = function () { if (state.on) try { r.start(); } catch (x) {} };
     try { r.start(); } catch (x) {}
     state.rec = r;
   }
-  function bump() { clearTimeout(state.idle); state.idle = setTimeout(function () { toggle(false); say("Stopped listening after 2 quiet minutes."); }, IDLE_MS); }
+  function bump() { clearTimeout(state.idle); state.idle = setTimeout(function () { toggle(false); say("Stopped listening."); }, IDLE_MS); }
   function toggle(on) {
     state.on = on;
     el.btn.classList.toggle("on", on);
-    el.panel.style.display = on ? "block" : el.panel.style.display;
-    if (on) { el.panel.style.display = "block"; startRec(); bump(); status("Listening. Say what you want, one thing at a time."); }
-    else { clearTimeout(state.idle); if (state.rec) try { state.rec.onend = null; state.rec.stop(); } catch (x) {} status("Paused. Tap the button to talk again."); }
+    if (on) { startRec(); bump(); if (SR()) show('<span class="dot"></span><span class="t">Listening\u2026</span>', false, true); }
+    else { clearTimeout(state.idle); if (state.rec) try { state.rec.onend = null; state.rec.stop(); } catch (x) {} el.bar.style.display = "none"; }
   }
 
-  /* ---------- UI ---------- */
-  var css = "#ap-btn{position:fixed;right:22px;bottom:22px;width:56px;height:56px;border-radius:50%;border:0;background:#111;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;z-index:2147483000;display:flex;align-items:center;justify-content:center}" +
-    "#ap-btn.on{background:#F5B23B;color:#111;animation:ap-p 1.6s infinite}@keyframes ap-p{0%{box-shadow:0 0 0 0 rgba(245,178,59,.6)}70%{box-shadow:0 0 0 14px rgba(245,178,59,0)}100%{box-shadow:0 0 0 0 rgba(245,178,59,0)}}" +
-    "#ap-panel{position:fixed;right:22px;bottom:90px;width:340px;max-height:60vh;overflow:auto;background:#fff;color:#111;border:1px solid #e5e5e5;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.18);z-index:2147483000;font:14px/1.45 Inter,system-ui,sans-serif;display:none}" +
-    "#ap-panel .h{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #eee;font-weight:600}#ap-panel .h span{font-weight:400;color:#888;font-size:12px}" +
-    "#ap-panel .x{border:0;background:none;font-size:18px;cursor:pointer;color:#888}#ap-say{padding:10px 14px;min-height:22px}#ap-say.miss{color:#b45309}#ap-heard{padding:0 14px 6px;color:#888;font-style:italic;min-height:18px}" +
-    "#ap-chips{padding:0 14px 8px;display:flex;flex-wrap:wrap;gap:6px}#ap-chips button{border:1px solid #ddd;background:#fafafa;border-radius:999px;padding:5px 10px;cursor:pointer;font:inherit}" +
-    "#ap-form{display:flex;border-top:1px solid #eee}#ap-form input{flex:1;border:0;padding:10px 14px;font:inherit;outline:none;background:transparent;color:#111}#ap-form button{border:0;background:none;padding:0 14px;cursor:pointer;color:#111;font-weight:600}" +
-    "#ap-log{padding:4px 14px 10px;color:#999;font-size:12px}#ap-log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}";
-  var el = {};
+  /* ---------- UI: one slim strip beside the mic ---------- */
+  var css = "#ap-btn{position:fixed;right:22px;bottom:22px;width:48px;height:48px;border-radius:50%;border:0;background:#111;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;z-index:2147483000;display:flex;align-items:center;justify-content:center}" +
+    "#ap-btn.on{background:#F5B23B;color:#111;animation:ap-p 1.6s infinite}@keyframes ap-p{0%{box-shadow:0 0 0 0 rgba(245,178,59,.6)}70%{box-shadow:0 0 0 12px rgba(245,178,59,0)}100%{box-shadow:0 0 0 0 rgba(245,178,59,0)}}" +
+    "#ap-bar{position:fixed;right:80px;overflow:hidden;bottom:27px;max-width:min(520px,calc(100vw - 110px));background:#111;color:#fff;border-radius:999px;padding:8px 14px;font:13px/1.35 Inter,system-ui,sans-serif;z-index:2147483000;display:none;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(0,0,0,.25)}" +
+    "#ap-bar .dot{width:8px;height:8px;border-radius:50%;background:#F5B23B;flex:none}#ap-bar .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ap-bar .heard{color:#bbb;font-style:italic}" +
+    "#ap-bar.miss .dot{background:#f87171}#ap-bar button{border:1px solid #444;background:#222;color:#fff;border-radius:999px;padding:3px 9px;cursor:pointer;font:inherit;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;flex:none}#ap-bar .q{flex:none;white-space:nowrap}" +
+    "#ap-bar input{background:transparent;border:0;color:#fff;font:inherit;outline:none;min-width:180px}";
+  var el = {}, hideT = null;
   function build() {
     var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
     el.btn = document.createElement("button"); el.btn.id = "ap-btn"; el.btn.title = "Ask Pravah"; el.btn.setAttribute("aria-label", "Ask Pravah");
-    el.btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg>';
-    el.panel = document.createElement("div"); el.panel.id = "ap-panel";
-    el.panel.innerHTML = '<div class="h">Ask Pravah <span>runs on the product map, no AI</span><button class="x" aria-label="Close">×</button></div><div id="ap-say"></div><div id="ap-heard"></div><div id="ap-chips"></div><form id="ap-form"><input placeholder="Or type: scan a badge, update the name to…" aria-label="Ask Pravah"><button>Go</button></form><div id="ap-log"></div>';
-    document.body.appendChild(el.panel); document.body.appendChild(el.btn);
-    el.say = el.panel.querySelector("#ap-say"); el.heard = el.panel.querySelector("#ap-heard"); el.chips = el.panel.querySelector("#ap-chips"); el.log = el.panel.querySelector("#ap-log");
+    el.btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg>';
+    el.bar = document.createElement("div"); el.bar.id = "ap-bar"; el.bar.setAttribute("role", "status"); el.bar.setAttribute("aria-live", "polite");
+    document.body.appendChild(el.bar); document.body.appendChild(el.btn);
     el.btn.onclick = function () { toggle(!state.on); };
-    el.panel.querySelector(".x").onclick = function () { toggle(false); el.panel.style.display = "none"; };
-    el.panel.querySelector("#ap-form").onsubmit = function (e) { e.preventDefault(); var i = this.querySelector("input"); el.panel.style.display = "block"; handle(i.value); i.value = ""; };
   }
-  function say(t, isMiss) { el.say.textContent = t; el.say.className = isMiss ? "miss" : ""; el.chips.innerHTML = ""; el.panel.style.display = "block"; }
+  function show(html, isMiss, sticky) {
+    clearTimeout(hideT);
+    el.bar.innerHTML = html; el.bar.className = isMiss ? "miss" : ""; el.bar.style.display = "flex";
+    if (!sticky && !state.on) hideT = setTimeout(function () { el.bar.style.display = "none"; }, 5000);
+  }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function say(t, isMiss) {
+    show('<span class="dot"></span><span class="t">' + esc(t) + "</span>", isMiss);
+    if (state.on) hideT = setTimeout(function () { if (state.on) show('<span class="dot"></span><span class="t">Listening\u2026</span>', false, true); }, 4000);
+  }
   function status(t) { say(t); }
-  function heard(t) { el.heard.textContent = t ? "“" + t + "”" : ""; }
+  function heard(t) { if (t) show('<span class="dot"></span><span class="t heard">“' + esc(t) + '”</span>', false, true); }
   function ask(qtext, opts) {
-    say(qtext); el.chips.innerHTML = "";
-    opts.forEach(function (o) { var b = document.createElement("button"); b.type = "button"; b.textContent = o.label; b.onclick = function () { el.chips.innerHTML = ""; o.run(); }; el.chips.appendChild(b); });
+    show('<span class="dot"></span><span class="q">' + esc(qtext) + "</span>", false, true);
+    opts.slice(0, 3).forEach(function (o) { var b = document.createElement("button"); b.type = "button"; b.textContent = o.label.split(":")[0]; b.title = o.label; b.onclick = function () { o.run(); }; el.bar.appendChild(b); });
   }
-  function renderLog() { el.log.innerHTML = state.log.slice(0, 4).map(function (t) { return "<div>→ " + t.replace(/</g, "&lt;") + "</div>"; }).join(""); }
+  function typeBox() {
+    show('<span class="dot"></span><input placeholder="Voice isn’t available here. Type: scan a badge…" aria-label="Ask Pravah">', false, true);
+    var i = el.bar.querySelector("input"); i.focus();
+    i.onkeydown = function (e) { if (e.key === "Enter") { var v = i.value; i.value = ""; handle(v); } if (e.key === "Escape") el.bar.style.display = "none"; };
+  }
+  function renderLog() {}
 
   function boot() {
     build();
