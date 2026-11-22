@@ -1,0 +1,644 @@
+{
+ "event_rule": "An event-level ask goes to the live event (today falls between its start and end dates). If none is live, the event the user opened last. If two are live or none was opened, ask \"Which event?\" with the events as choices. Never guess between two.\n",
+ "screens": [
+  {
+   "id": "S-01",
+   "name": "Events",
+   "route": "/events",
+   "level": "org",
+   "does": "Lists every event; open one or create one.",
+   "say": [
+    "show my events",
+    "open events",
+    "go to events"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-02",
+   "name": "New event",
+   "route": "/events/new",
+   "level": "org",
+   "does": "Creates an event.",
+   "say": [
+    "create an event",
+    "add a new event",
+    "new show"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-03",
+   "name": "All visitors",
+   "route": "/all-visitors",
+   "level": "org",
+   "does": "Every visitor across events in one table, with Excel export.",
+   "say": [
+    "show all visitors",
+    "every lead",
+    "export my visitors"
+   ],
+   "feature": "F-105",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-04",
+   "name": "Org settings, ideal customer profile",
+   "route": "/settings",
+   "level": "org",
+   "does": "Company details and the org-wide ideal customer profile (ICP).",
+   "say": [
+    "show my ICPs",
+    "what is my ICP",
+    "update my company ICP",
+    "org settings",
+    "business info"
+   ],
+   "fields": [
+    {
+     "name": "Ideal customer profile",
+     "edit": true,
+     "say": [
+      "update my ICP",
+      "change my company ICP",
+      "edit the ideal customer profile",
+      "my ICP"
+     ]
+    },
+    {
+     "name": "Business summary",
+     "edit": true,
+     "say": [
+      "update the business summary",
+      "change what we do"
+     ]
+    },
+    {
+     "name": "Business website",
+     "edit": true,
+     "say": [
+      "update the website",
+      "change our website"
+     ]
+    }
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ],
+   "note": "Prabuddh, 22 Nov 2026: org settings (the company ICP included) feed the event settings when a new event is created; seen working in the app. 'Show me my ICPs' comes here. Seen in the app: section Ideal customer profile, button Save ideal customer profile."
+  },
+  {
+   "id": "S-05",
+   "name": "Team",
+   "route": "/team",
+   "level": "org",
+   "does": "Team members and their roles; add or edit a member.",
+   "say": [
+    "show my team",
+    "add a rep",
+    "invite someone",
+    "edit a team member"
+   ],
+   "actions": [
+    {
+     "name": "Add member",
+     "route": "/team/new",
+     "done": "Opened Add member.",
+     "say": [
+      "add a rep",
+      "invite a teammate",
+      "add a team member"
+     ]
+    }
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-06",
+   "name": "Integrations",
+   "route": "/integrations",
+   "level": "org",
+   "does": "CRM, calendar, email and Slack connections.",
+   "say": [
+    "connect salesforce",
+    "connect hubspot",
+    "my integrations",
+    "connect calendar"
+   ],
+   "feature": "F-009",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-07",
+   "name": "Analytics",
+   "route": "/analytics",
+   "level": "org",
+   "does": "Results across events.",
+   "say": [
+    "show analytics",
+    "how are my events doing"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-08",
+   "name": "Booth report",
+   "route": "/booth-report",
+   "level": "org",
+   "does": "Booth load by hour and rep scorecard across events.",
+   "say": [
+    "booth report",
+    "rep scorecard",
+    "busiest hours"
+   ],
+   "feature": "F-104",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-09",
+   "name": "Open questions",
+   "route": "/open-questions",
+   "level": "org",
+   "does": "Questions visitors asked that are still unanswered.",
+   "say": [
+    "open questions",
+    "what did visitors ask",
+    "unanswered questions"
+   ],
+   "feature": "F-102",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-10",
+   "name": "Stale leads",
+   "route": "/stale-leads",
+   "level": "org",
+   "does": "Leads that have gone quiet.",
+   "say": [
+    "stale leads",
+    "who went quiet"
+   ],
+   "feature": "F-103",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-11",
+   "name": "Meetings",
+   "route": "/meetings",
+   "level": "org",
+   "does": "Meetings booked.",
+   "say": [
+    "my meetings",
+    "meetings booked"
+   ],
+   "feature": "F-011",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-12",
+   "name": "What's new",
+   "route": "/whats-new",
+   "level": "org",
+   "does": "What shipped recently.",
+   "say": [
+    "what's new",
+    "latest updates"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-20",
+   "name": "Event home",
+   "route": "/events/:slug",
+   "level": "event",
+   "does": "The event's overview.",
+   "say": [
+    "open the event",
+    "go to the live event"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-21",
+   "name": "Visitors",
+   "route": "/events/:slug/registrations",
+   "level": "event",
+   "does": "Every visitor at this event; search and open one.",
+   "say": [
+    "show visitors",
+    "who came to the booth",
+    "search for a visitor"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-22",
+   "name": "Add visitor",
+   "route": "/events/:slug/registrations/new",
+   "level": "event",
+   "does": "Add a visitor by scanning a badge, uploading a photo, or typing name and company.",
+   "say": [
+    "scan a badge",
+    "add a visitor",
+    "new visitor",
+    "take a photo of a card"
+   ],
+   "actions": [
+    {
+     "name": "Scan a badge",
+     "click": "Scan a badge or business card",
+     "done": "Camera's on. Hold the badge or card in the frame.",
+     "say": [
+      "scan a badge",
+      "scan",
+      "scan a card",
+      "scan a business card",
+      "scan someone"
+     ]
+    },
+    {
+     "name": "Upload a photo",
+     "click": "Upload a photo",
+     "done": "Pick the photo of the badge or card.",
+     "say": [
+      "upload a photo",
+      "photo of a card",
+      "upload a picture"
+     ]
+    },
+    {
+     "name": "Type name and company",
+     "field": "Name",
+     "done": "Say the visitor's name, or type it.",
+     "say": [
+      "type a name",
+      "add by name",
+      "add a visitor by name",
+      "add a visitor manually"
+     ]
+    }
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-23",
+   "name": "Visitor",
+   "route": "/events/:slug/registrations/:visitorId",
+   "level": "event",
+   "does": "One visitor: who they are, company, what was said, summary and next steps.",
+   "say": [
+    "open Maya Ortiz",
+    "show the visitor I just met",
+    "last visitor"
+   ],
+   "feature": "F-006",
+   "fields": [
+    {
+     "name": "Name",
+     "edit": true,
+     "say": [
+      "update the name",
+      "change the name",
+      "fix the name",
+      "rename this person"
+     ]
+    },
+    {
+     "name": "Company",
+     "edit": true,
+     "say": [
+      "change the company",
+      "update the company"
+     ]
+    },
+    {
+     "name": "Title",
+     "edit": true,
+     "say": [
+      "change the title",
+      "update the role",
+      "update the job title"
+     ]
+    },
+    {
+     "name": "Email",
+     "edit": true,
+     "say": [
+      "update the email",
+      "change the email"
+     ]
+    },
+    {
+     "name": "Phone",
+     "edit": true,
+     "say": [
+      "update the phone",
+      "change the phone number"
+     ]
+    },
+    {
+     "name": "LinkedIn URL",
+     "edit": true,
+     "say": [
+      "update the linkedin",
+      "change the linkedin url"
+     ]
+    }
+   ],
+   "actions": [
+    {
+     "name": "Book meeting",
+     "click": "Book meeting",
+     "done": "Opened Book meeting.",
+     "say": [
+      "book a meeting",
+      "book a meeting with them",
+      "schedule a meeting"
+     ]
+    },
+    {
+     "name": "Enrich visitor",
+     "click": "Enrich visitor",
+     "done": "Enriching the visitor.",
+     "say": [
+      "enrich this visitor",
+      "enrich them",
+      "look them up"
+     ]
+    },
+    {
+     "name": "Start recording",
+     "click": "Start recording",
+     "done": "Recording started.",
+     "say": [
+      "start recording",
+      "record the conversation"
+     ]
+    },
+    {
+     "name": "Show summary",
+     "click": "Summary",
+     "done": "Here's the summary.",
+     "say": [
+      "show the summary",
+      "what did we talk about",
+      "summary"
+     ]
+    },
+    {
+     "name": "Show email",
+     "click": "Email",
+     "done": "Here's the email.",
+     "say": [
+      "show the email",
+      "follow up email"
+     ]
+    },
+    {
+     "name": "Voice notes",
+     "click": "Voice notes",
+     "done": "Opened voice notes.",
+     "say": [
+      "voice notes",
+      "add a voice note"
+     ]
+    },
+    {
+     "name": "Mark hot",
+     "click": "Hot",
+     "done": "Marked hot.",
+     "say": [
+      "mark as hot",
+      "hot lead"
+     ]
+    },
+    {
+     "name": "Mark warm",
+     "click": "Warm",
+     "done": "Marked warm.",
+     "say": [
+      "mark as warm",
+      "warm lead"
+     ]
+    },
+    {
+     "name": "Mark cold",
+     "click": "Cold",
+     "done": "Marked cold.",
+     "say": [
+      "mark as cold",
+      "cold lead"
+     ]
+    }
+   ],
+   "fields_verified": true,
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-24",
+   "name": "Live feed",
+   "route": "/events/:slug/live-feed",
+   "level": "event",
+   "does": "What is happening at the booth right now.",
+   "say": [
+    "live feed",
+    "what's happening now"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-25",
+   "name": "Event settings, event ICP",
+   "route": "/events/:slug/settings",
+   "level": "event",
+   "does": "This event's details and the ICP for this event.",
+   "say": [
+    "update the ICP for this event",
+    "event ICP",
+    "event settings",
+    "edit this event"
+   ],
+   "fields": [
+    {
+     "name": "Ideal customer profile",
+     "edit": true,
+     "say": [
+      "update the ICP for this event",
+      "change the event ICP",
+      "ICP for this event only"
+     ]
+    },
+    {
+     "name": "What industries are you targeting?",
+     "edit": true,
+     "say": [
+      "update the industries",
+      "target industries for this event"
+     ]
+    },
+    {
+     "name": "Event name",
+     "edit": true,
+     "say": [
+      "rename the event",
+      "change the event name"
+     ]
+    },
+    {
+     "name": "Location",
+     "edit": true,
+     "say": [
+      "change the location",
+      "update the venue"
+     ]
+    }
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ],
+   "note": "Prabuddh, 22 Nov 2026: a new event starts with the org settings, the company ICP included; edit here to personalise this event only. Seen in the app under Visitor scan defaults."
+  },
+  {
+   "id": "S-26",
+   "name": "Event analytics",
+   "route": "/events/:slug/analytics",
+   "level": "event",
+   "does": "Results for this event.",
+   "say": [
+    "how did this event do",
+    "event analytics"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-27",
+   "name": "Event booth report",
+   "route": "/events/:slug/booth-report",
+   "level": "event",
+   "does": "Booth load by hour and rep scorecard for this event.",
+   "say": [
+    "booth report for this event"
+   ],
+   "feature": "F-104",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-28",
+   "name": "Communications",
+   "route": "/events/:slug/communications",
+   "level": "event",
+   "does": "Emails to this event's visitors.",
+   "say": [
+    "emails for this event",
+    "summary emails",
+    "communications"
+   ],
+   "feature": "F-008",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-29",
+   "name": "Event integrations",
+   "route": "/events/:slug/integrations",
+   "level": "event",
+   "does": "Which connections this event syncs to.",
+   "say": [
+    "event integrations",
+    "which crm does this event use"
+   ],
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-30",
+   "name": "Event open questions",
+   "route": "/events/:slug/open-questions",
+   "level": "event",
+   "does": "Unanswered visitor questions from this event.",
+   "say": [
+    "open questions for this event"
+   ],
+   "feature": "F-102",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  },
+  {
+   "id": "S-31",
+   "name": "Event stale leads",
+   "route": "/events/:slug/stale-leads",
+   "level": "event",
+   "does": "Leads from this event that have gone quiet.",
+   "say": [
+    "stale leads for this event"
+   ],
+   "feature": "F-103",
+   "verified": true,
+   "in": [
+    "dream"
+   ]
+  }
+ ]
+}
