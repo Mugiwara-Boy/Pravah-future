@@ -52,11 +52,19 @@
     });
     return out;
   }
-  function score(q, phrases) {
+  /* verb groups (update, add): an action phrase with a verb only counts when the ask has that verb too,
+     so "order a pizza for the booth team" never starts "add a team member" on the word team alone */
+  var VERBS = ["#" + GROUPS.findIndex(function (g) { return g[0] === "update"; }), "#" + GROUPS.findIndex(function (g) { return g[0] === "add"; })];
+  function verbOk(qc, pc) {
+    var need = VERBS.filter(function (v) { return pc[v]; });
+    return !need.length || need.some(function (v) { return qc[v]; });
+  }
+  function score(q, phrases, needVerb) {
     var qc = concepts(q), best = 0, n = Object.keys(qc).length;
     if (!n) return 0;
     phrases.forEach(function (p) {
       var pc = concepts(p), pn = Object.keys(pc).length, hit = 0;
+      if (needVerb && !verbOk(qc, pc)) return;
       for (var k in qc) if (pc[k]) hit++;
       var s = pn ? (2 * hit) / (n + pn) : 0;
       if (s > best) best = s;
@@ -466,7 +474,7 @@
   }
   function bestAction(sc, q) {
     var best = null;
-    (sc.actions || []).forEach(function (a) { var s = score(q, (a.say || []).concat([a.name])); if (!best || s > best.s) best = { a: a, s: s }; });
+    (sc.actions || []).forEach(function (a) { var s = score(q, (a.say || []).concat([a.name]), true); if (!best || s > best.s) best = { a: a, s: s }; });
     return best;
   }
 
@@ -544,8 +552,8 @@
     MAP.screens.forEach(function (sc) {
       cands.push({ sc: sc, kind: "screen", s: score(q, sc.say.concat([sc.name])) });
       (sc.fields || []).forEach(function (f) { if (f.edit) cands.push({ sc: sc, kind: "field", f: f, s: score(q, f.say) + (here && here.id === sc.id ? 0.08 : 0) }); });
-      (sc.actions || []).forEach(function (a) { if (!a.flow) cands.push({ sc: sc, kind: "action", a: a, s: score(q, (a.say || []).concat([a.name])) + (here && here.id === sc.id ? 0.1 : 0) }); });
-      (sc.flows || []).forEach(function (fl) { cands.push({ sc: sc, kind: "flow", fl: fl, s: score(q, fl.say) + 0.1 + (here && here.id === sc.id ? 0.1 : 0) }); });
+      (sc.actions || []).forEach(function (a) { if (!a.flow) cands.push({ sc: sc, kind: "action", a: a, s: score(q, (a.say || []).concat([a.name]), true) + (here && here.id === sc.id ? 0.1 : 0) }); });
+      (sc.flows || []).forEach(function (fl) { cands.push({ sc: sc, kind: "flow", fl: fl, s: score(q, fl.say, true) + 0.1 + (here && here.id === sc.id ? 0.1 : 0) }); });
     });
     cands = cands.filter(function (c) { return c.sc.verified !== false || c.kind !== "field" || c.sc.fields_verified !== false; });
     /* level hints: a named event or "this event" points to the event level; "company", "my", "org" without "event" to the org level */
@@ -577,8 +585,8 @@
     MAP.screens.forEach(function (sc) {
       b = Math.max(b, score(q, sc.say.concat([sc.name])));
       (sc.fields || []).forEach(function (f) { b = Math.max(b, score(q, f.say)); });
-      (sc.actions || []).forEach(function (a) { b = Math.max(b, score(q, a.say || [])); });
-      (sc.flows || []).forEach(function (fl) { b = Math.max(b, score(q, fl.say)); });
+      (sc.actions || []).forEach(function (a) { b = Math.max(b, score(q, a.say || [], true)); });
+      (sc.flows || []).forEach(function (fl) { b = Math.max(b, score(q, fl.say, true)); });
     });
     return b;
   }
