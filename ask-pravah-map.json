@@ -133,14 +133,19 @@
   },
   {
    "id": "S-03",
-   "name": "All visitors",
+   "name": "Master table",
    "route": "/all-visitors",
    "level": "org",
-   "does": "Every visitor across events in one table, with Excel export.",
+   "does": "Every visitor across events in one table, with Excel export. The app labels it Master table.",
    "say": [
     "show all visitors",
+    "all visitors",
     "every lead",
-    "export my visitors"
+    "export my visitors",
+    "master table",
+    "open the master table",
+    "show the master table",
+    "go to the master table"
    ],
    "actions": [
     {
