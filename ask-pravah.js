@@ -667,7 +667,7 @@
    * app should have done, and teaches the map. Answers to Ask Pravah's own questions stay in the same row. */
   var J = { cur: null, t: null };
   var NEG = /^(no|nope|wrong|that's wrong|thats wrong|not that|not this|undo|cancel|never mind|nevermind|go back|back)\b|^i (meant|said|asked)\b/;
-  function appName() { return /github\.io$|localhost|127\.0\.0\.1/.test(location.hostname) ? "dream app" : "product"; }
+  function appName() { return /github\.io$|localhost|127\.0\.0\.1/.test(location.hostname) ? "Pravah New App" : "product"; }
   function clip(t, n) { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; }
   function jStart(q) { jFlush(); J.cur = { at: new Date().toISOString(), words: q, screen: route(), did: [], ans: [], then: null, sure: null, t0: Date.now() }; J.t = setTimeout(jFlush, 20000); }
   function jDid(t) { if (J.cur && J.cur.did.length < 4 && J.cur.did[J.cur.did.length - 1] !== clip(t, 120)) J.cur.did.push(clip(t, 120)); }
@@ -708,7 +708,7 @@
     jDid("no match: " + why);
     var file = function (level) {
       rec.critical = level; rec.kind = "request";
-      var who = whoAsked(); rec.login = who.login; rec.user = who.user; rec.account = who.account; rec.app = "dream app";
+      var who = whoAsked(); rec.login = who.login; rec.user = who.user; rec.account = who.account; rec.app = "Pravah New App";
       sendRequest(rec);
       try { var f = JSON.parse(localStorage.getItem("askpravah_feature_requests") || "[]"); f.unshift(rec); localStorage.setItem("askpravah_feature_requests", JSON.stringify(f.slice(0, 200))); } catch (x) {}
     };
